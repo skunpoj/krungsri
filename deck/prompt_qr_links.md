@@ -83,6 +83,70 @@ generic — that would point to something else going on (e.g. ChatGPT not
 reliably using earlier turns for this kind of synthesis prompt) and we
 should go straight to rewriting the prompts to be self-contained instead.
 
+## TEST CASE 2 — multi-turn replay WITH a file upload (run this second)
+
+Test case 1 (above) only covers the no-file-upload subset. Several other
+affected slides — 56, 74, 88, and the whole Bonus-2 sequence 97–102 — start
+from a prompt that assumes a **file is attached to the chat**, e.g.
+"นี่คือข้อมูลส่งออกของฉัน ช่วยดูให้หน่อยว่ามีอะไรอยู่ในไฟล์นี้บ้าง" (slide 97)
+or "อ่าน Invoice ฉบับนี้..." (slide 56, even though slide 56's prompt also
+pastes the invoice's data as text — ChatGPT still treated it as if a file
+should be attached and asked for one, which is itself worth confirming/
+ruling out by testing).
+
+This second test does two things at once: confirms whether (a) an uploaded
+file persists and stays usable across later turns in the same chat without
+re-uploading, and (b) whether that combined with multi-turn replay fixes the
+anaphoric-reference slides (99, 100 in particular, both confirmed generic
+when opened standalone).
+
+**Use the Bonus-2 sequence (slides 97–102)** — it's the deck's own "6 steps,
+1 chat, 1 file" design, so it's the most direct test of exactly what the
+deck claims is possible.
+
+File to upload: download
+`https://raw.githubusercontent.com/skunpoj/krungsri/claude/ai-sme-workshop-handoff-gfde4c/deck/Sample_Thai_Export_Data.xlsx`
+(this is the exact same sample file the deck's other QR codes link to — an
+export-records spreadsheet, not sensitive data).
+
+Steps:
+1. Open a **brand-new** `chatgpt.com` chat.
+2. Attach `Sample_Thai_Export_Data.xlsx` to the message box.
+3. Send, with the file attached, slide 97's prompt: `นี่คือข้อมูลส่งออกของฉัน ช่วยดูให้หน่อยว่ามีอะไรอยู่ในไฟล์นี้บ้าง`
+4. Wait for the reply, screenshot it, then send slide 98's prompt (**no
+   re-attaching the file** — this is the persistence test):
+   `วิเคราะห์ Top 5 ตลาดส่งออกของฉันปี 2026 เรียงตามโอกาส พร้อมเหตุผล`
+5. Wait, screenshot, then send slide 99's prompt: `ตลาดอันดับ 1 เจอภาษีนำเข้าเท่าไหร่ และ landed cost ต่อตันเท่าไหร่`
+6. Wait, screenshot, then send slide 100's prompt: `ร่าง Commercial Invoice + Packing List สำหรับออเดอร์ไปตลาดนั้น`
+7. Wait, screenshot, then send slide 101's prompt: `ตรวจว่าเอกสารสอดคล้องกันไหม และต้องมีใบรับรองอะไรตามกฎปลายทาง`
+8. Wait, screenshot, then send slide 102's prompt: `สรุปทั้งหมดเป็นแผนปฏิบัติ + checklist เอกสารที่ต้องเตรียม`
+
+Save each turn's screenshot (cropped, popup removed, same pipeline as
+before) to `/tmp/multiturn_file_test_slide97.png` through
+`.../slide102.png`.
+
+**Pass condition per turn** — not an exact-figure match (the deck's
+narration text uses invented illustrative numbers, not a literal transcript
+of this exact file), but each answer should be **specific and grounded in
+the real uploaded file's contents**, e.g.:
+- Slide 97: names actual product/country categories found in the file, not "I don't see a file."
+- Slide 98: names actual top markets with actual reasons, not a generic top-5 framework.
+- Slide 99: names a specific market and gives an actual tariff/landed-cost number for *that* market — not "which market do you mean?"
+- Slide 100: a populated invoice/packing list with real buyer/quantity/price fields — not a `[Your Company Name]` placeholder template.
+- Slide 101: a real consistency check referencing the actual drafted documents.
+- Slide 102: a real action plan referencing the actual prior turns, not "what do you mean by 'all of it'?"
+
+**If slide 97 alone already fails** (i.e. ChatGPT doesn't actually read the
+spreadsheet contents — e.g. can't parse it, or gives a generic "I see a
+file was uploaded" non-answer), that's the most important single finding:
+it would mean the deck's core promise ("upload your file, AI reads it
+directly") doesn't actually hold up live, which matters far more than the
+QR/multi-turn issue and should be reported back immediately rather than
+continuing through turns 98–102.
+
+Report back: pass/fail per turn, plus whether the file upload persisted
+across turns 98–102 without re-attaching.
+
 ## HOW TO 1 — หาตลาด/ผู้ซื้อ
 
 **Slide 9** — จากไฟล์ข้อมูลส่งออกนี้ ช่วยวิเคราะห์ Top 5 ตลาดส่งออกของฉันปี 2026 — ดูจากดีมานด์ การเติบโต ภาษี และคู่แข่ง เรียงลำดับพร้อมเหตุผล
