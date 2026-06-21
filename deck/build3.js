@@ -220,7 +220,7 @@ function drawMock(s, kind, A, x, y, w, h) {
     s.addShape(pres.shapes.RECTANGLE, { x, y, w, h, fill: { color: "FFFFFF" }, line: { color: P.border, width: 1 } });
     s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: x + 0.35, y: y + h / 2 - 0.45, w: 0.9, h: 0.9, fill: { color: A }, line: { type: "none" }, rectRadius: 0.12, shadow: shadowSoft() });
     s.addImage({ data: IC.file, x: x + 0.55, y: y + h / 2 - 0.25, w: 0.5, h: 0.5 });
-    s.addText("เลือก “เพิ่มรูปและไฟล์” แล้วเลือกไฟล์ Sample_Thai_Export_Data.xlsx จากเครื่องของคุณ", { x: x + 1.55, y: y, w: w - 2.0, h, fontFace: F, fontSize: 16, bold: true, color: P.ink, align: "left", valign: "middle", lineSpacingMultiple: 1.1, margin: 0 });
+    s.addText("เลือก “เพิ่มรูปและไฟล์” แล้วเลือกไฟล์ Sample_Thai_Export_Data.xlsx จากเครื่องของคุณ\n⚠ ต้อง Login เข้า ChatGPT ก่อน — ถ้ายังไม่ Login ปุ่มนี้จะให้ Login ก่อนเสมอ", { x: x + 1.55, y: y, w: w - 2.0, h, fontFace: F, fontSize: 15, bold: true, color: P.ink, align: "left", valign: "middle", lineSpacingMultiple: 1.1, margin: 0 });
   } else if (kind === "uploaded") {
     s.addShape(pres.shapes.RECTANGLE, { x, y, w, h, fill: { color: "FFFFFF" }, line: { color: P.border, width: 1 } });
     s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: x + 0.35, y: y + h / 2 - 0.4, w: 4.2, h: 0.8, fill: { color: P.greenT }, line: { color: P.greenBd, width: 1.25 }, rectRadius: 0.08 });
@@ -262,6 +262,25 @@ function closingSlide(o) {
     s.addText(t, { x: 2.3, y, w: 9.4, h: rh, fontFace: F, fontSize: 15.5, color: "FFFFFF", align: "left", valign: "middle", lineSpacingMultiple: 1.1, margin: 0 });
   });
   s.addText(o.next, { x: 0.6, y: y0 + items.length * (rh + gap) + 0.15, w: 12.13, h: 0.5, fontFace: F, fontSize: 14, italic: true, color: "D8CFBE", align: "center", valign: "middle", margin: 0 });
+}
+
+function guideIntroSlide() {
+  const s = pres.addSlide(); bg(s, P.cap); const A = P.gold;
+  s.addText("ก่อนเริ่ม — วิธีใช้คู่มือนี้", { x: 0.6, y: 0.7, w: 12.13, h: 0.5, fontFace: F, fontSize: 17, bold: true, color: A, charSpacing: 3, align: "center", margin: 0 });
+  s.addText("3 ข้อที่ต้องรู้ก่อนสแกน QR ขั้นแรก", { x: 0.6, y: 1.25, w: 12.13, h: 1.0, fontFace: F, fontSize: 30, bold: true, color: "FFFFFF", align: "center", valign: "middle", margin: 0 });
+  const guideItems = [
+    "อยู่ในแชทเดิมตลอดทั้ง HOW TO — ทุกขั้นในหัวข้อเดียวกันต้องพิมพ์ต่อในแชทเดียวกัน ห้ามเปิดแชทใหม่ระหว่างขั้น เพราะ AI ใช้คำตอบและไฟล์จากขั้นก่อนหน้ามาตอบขั้นต่อไป",
+    "ขั้นที่ต้องแนบไฟล์ (มีปุ่ม “+”) ต้อง Login เข้า ChatGPT ก่อน — ChatGPT จะให้ Login ก่อนเสมอเมื่อกดแนบไฟล์ ถ้ายังไม่ Login ให้ Login ก่อนเริ่มขั้นนั้น",
+    "ตัวเลข/ชื่อตลาดที่ AI ตอบจริงอาจไม่ตรงกับตัวอย่างในคู่มือทุกตัว เพราะคู่มือใช้ข้อมูลตัวอย่างประกอบ ส่วน AI จะตอบจากไฟล์ข้อมูลจริงที่คุณอัปโหลด — ให้ดูว่า AI ใช้เหตุผลและอ้างอิงข้อมูลจากไฟล์ถูกต้องหรือไม่ ไม่ใช่ตัวเลขต้องตรงกันทุกตัว",
+  ];
+  const gy0 = 2.7, grh = 1.1, ggap = 0.18;
+  guideItems.forEach((t, i) => {
+    const y = gy0 + i * (grh + ggap);
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 1.4, y, w: 10.53, h: grh, fill: { color: "453F33" }, line: { type: "none" }, rectRadius: 0.08 });
+    s.addShape(pres.shapes.OVAL, { x: 1.62, y: y + grh / 2 - 0.22, w: 0.44, h: 0.44, fill: { color: A }, line: { type: "none" } });
+    s.addText(String(i + 1), { x: 1.62, y: y + grh / 2 - 0.22, w: 0.44, h: 0.44, fontFace: F, fontSize: 16, bold: true, color: P.cap, align: "center", valign: "middle", margin: 0 });
+    s.addText(t, { x: 2.3, y: y + 0.06, w: 9.4, h: grh - 0.12, fontFace: F, fontSize: 14.5, color: "FFFFFF", align: "left", valign: "middle", lineSpacingMultiple: 1.12, margin: 0 });
+  });
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -817,6 +836,7 @@ async function buildBonus2() {
   IC.file = await ICraw.file(P.d5);
   IC.rocket = await ICraw.rocket(P.green);
 
+  guideIntroSlide();
   await buildHowTo1();
   await buildHowTo2();
   await buildHowTo3();

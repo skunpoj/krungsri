@@ -229,3 +229,154 @@ https://chatgpt.com/?q=%E0%B8%95%E0%B8%A3%E0%B8%A7%E0%B8%88%E0%B8%A7%E0%B9%88%E0
 
 **Slide 102** — สรุปทั้งหมดเป็นแผนปฏิบัติ + checklist เอกสารที่ต้องเตรียม
 https://chatgpt.com/?q=%E0%B8%AA%E0%B8%A3%E0%B8%B8%E0%B8%9B%E0%B8%97%E0%B8%B1%E0%B9%89%E0%B8%87%E0%B8%AB%E0%B8%A1%E0%B8%94%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%E0%B9%81%E0%B8%9C%E0%B8%99%E0%B8%9B%E0%B8%8F%E0%B8%B4%E0%B8%9A%E0%B8%B1%E0%B8%95%E0%B8%B4%20%2B%20checklist%20%E0%B9%80%E0%B8%AD%E0%B8%81%E0%B8%AA%E0%B8%B2%E0%B8%A3%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%95%E0%B9%89%E0%B8%AD%E0%B8%87%E0%B9%80%E0%B8%95%E0%B8%A3%E0%B8%B5%E0%B8%A2%E0%B8%A1
+
+---
+
+## RESULTS SO FAR (read this before running anything else)
+
+- **Test Case 1 (slide 30, no file, multi-turn text only) — PASS.** Confirmed
+  by direct screenshot review. Real comparison table, populated quote email,
+  no clarifying question. Minor defect: `tc1_slide30_PASS.png` still shows a
+  sliver of the login popup top-right — **re-crop before using in the deck**,
+  don't reuse as-is.
+- **Test Case 2 (slides 97–102, file upload + 6-turn replay, after logging
+  into ChatGPT) — PASS, with two notes.**
+  1. File persistence across all 6 turns is confirmed working: turns 99–102
+     chain correctly off the real file's actual top market (Japan) and top
+     product (Automotive Parts), through a drafted Commercial Invoice +
+     Packing List, a compliance check against those drafted documents, and a
+     final Action Plan with a concrete readiness score. Nothing generic
+     anywhere in that chain.
+  2. Slides 97 and 98's saved screenshots are **duplicates of turn 98's
+     answer** — turn 97's own distinct first response (the "what's in this
+     file" answer) was never actually captured, likely a timing/off-by-one
+     bug in the capture script. **Re-run just slide 97's screenshot** before
+     using this set in the deck.
+  3. The real sample file is multi-product (auto parts, medical gloves,
+     jasmine rice, canned pineapple, tapioca starch) with **Japan** as #1
+     market — not the deck's invented single-product India/rice narrative.
+     ChatGPT correctly grounds answers in the real file rather than trying
+     to match the deck's illustrative numbers. **If any of these screenshots
+     go into the deck, the caption text needs to say Japan/Automotive Parts,
+     not reuse the existing RESULTB2_* illustrative copy.**
+- **Conclusion: multi-turn replay + a logged-in session is now the confirmed
+  capture method** for every affected slide — no `build3.js` prompt rewrites
+  needed. The one hard requirement is **being logged into ChatGPT before any
+  step that attaches a file** (confirmed: the "+" attach button shows a
+  login wall for anonymous sessions). This also has a live-workshop
+  implication, not just a screenshot one — see the coverage matrix below.
+
+## Coverage matrix — every HOW TO/Bonus, what it needs, what's left to do
+
+Re-checked every `STEP*_PROMPT` constant in `build3.js` against this. Use
+this table to decide what to capture next; don't re-derive it from scratch.
+
+| Section | Slides | Needs | Status |
+|---|---|---|---|
+| HOW TO 1 (หาตลาด/ผู้ซื้อ) | 9, 11, 13 | File upload (turn 1) + multi-turn replay (turns 2–3) | **Not tested.** Same mechanism as the now-confirmed Bonus-2 method, so low risk — but note slide 11/13's prompts hardcode "ตลาดอินเดีย" / "ITC Limited" as the assumed #1 market/buyer. If the real file's actual #1 market isn't India (Test 2 showed Japan for the Bonus-2 file), a literal run will answer about a different market/buyer than the deck's illustrative `RESULT1`–`RESULT3` text describes. Capture it anyway and caption with whatever market/buyer the real run actually returns. |
+| HOW TO 2 (ภาษี/landed cost) | 24, 26, 28, 30 | Multi-turn replay, no file | **Done — Test Case 1, PASS** (pending the re-crop noted above). |
+| HOW TO 3 (ร่างเอกสารส่งออก) | 42, 44, 46 | Multi-turn replay, **no file needed** — slide 42's prompt embeds the full order data as text, no attachment required | **Not tested**, but same low-risk profile as Test Case 1 (text-only continuation). Recommend running before final capture, but it's not the priority gap. |
+| HOW TO 4 (อ่านเอกสารส่งออก) | 56, 58, 60 | The deck's mock step says "attach the Invoice file," but slide 56's prompt also embeds the invoice's full data as text — worth confirming whether it works via **text-only multi-turn with no real attachment** | **Not tested.** If it works without an attachment, this sidesteps the login-wall requirement entirely for this HOW TO — worth confirming specifically. |
+| HOW TO 5 (ตรวจความสอดคล้อง) | 74, 76, 78 | **3 files attached simultaneously** (Invoice + Packing List + Sales Contract) + multi-turn replay, logged in | **Not tested — this is the real gap.** Test Case 2 only proved single-file persistence; multi-file-at-once hasn't been tried at all. Recommend as the next priority capture (see below). |
+| BONUS 1 (ทีมเอเจนต์) | 88 | N/A for this pipeline — `MASTER_PROMPT` targets **Claude Code + VS Code**, not chatgpt.com | **Out of scope.** This QR's `chatgpt.com/?q=...` link will never reproduce the deck's described agent-team behavior, because the deck's own narrative for this slide assumes a completely different tool. Flag this to whoever owns the deck content — either drop the QR/screenshot expectation for slide 88, or rewrite the slide to point at a Claude Code walkthrough instead. |
+| BONUS 2 (6 ขั้นในแชตเดียว) | 97–102 | File upload + 6-turn replay, logged in | **Done — Test Case 2, PASS** (pending the slide-97 re-capture noted above). |
+
+### Recommended next capture session order
+1. Re-crop `tc1_slide30_PASS.png` (remove popup sliver).
+2. Re-capture slide 97 alone (its own distinct answer, not turn 98's).
+3. Run HOW TO 5's 3-file test (new — see below for exact steps; this is the one untested multi-file scenario).
+4. Run HOW TO 1 and HOW TO 3 multi-turn replays (lower priority, same proven mechanism).
+5. Confirm whether HOW TO 4 works without a real file attachment (since its prompt already embeds the data as text).
+
+## TEST CASE 4 — HOW TO 5, three files attached at once (run this next)
+
+Everything tested so far only ever attached **one** file per chat. HOW TO 5
+(slides 74–78) is different: the deck instructs attaching **three** files to
+the same message at once (an Invoice, a Packing List, and a Sales Contract
+for the same order, deliberately containing inconsistent numbers), then
+asking ChatGPT to cross-check them. This hasn't been tried — confirm it
+works the same way single-file upload did in Test Case 2.
+
+You'll need three small files. Use the deck's actual numbers (the
+inconsistencies are deliberate, by design — that's the point of HOW TO 5):
+- `INV-2026-014.txt` — an invoice for Siam Rice → EuroFood GmbH, Hamburg: **1,200 sacks**, FOB Bangkok.
+- `PL-2026-014.txt` — a packing list for the same order: **1,180 sacks**, **29,500 kg** net weight (deliberately different from the invoice).
+- `SC-2026-007.txt` — a sales contract for the same order: **CIF Hamburg** (deliberately conflicts with the invoice/packing list's FOB term), and omits the HS code / country of origin.
+
+(Plain `.txt` files with those few fields typed out are fine — the point is
+testing whether ChatGPT reads and cross-references **multiple simultaneously
+attached files**, not testing real document parsing fidelity.)
+
+Steps:
+1. Open a brand-new `chatgpt.com` chat, **logged in**.
+2. Attach all three files to a single message.
+3. Send slide 74's prompt: `อ่านเอกสารสามชุดนี้พร้อมกัน (Invoice INV-2026-014, Packing List PL-2026-014, Sales Contract SC-2026-007 ของออเดอร์เดียวกัน) แล้วเทียบตัวเลขทุกฟิลด์ระหว่างเอกสาร ทำเป็นตารางเปรียบเทียบที่ชี้จุดตรงกันและไม่ตรงกันให้ชัดเจน`
+4. Wait, screenshot, then send slide 76's prompt: `จากความขัดแย้งที่พบ ช่วยอธิบายรายละเอียดแต่ละจุดว่าจะส่งผลอะไรตามมา อ้างอิงกฎ UCP 600 และ Incoterms 2020 ที่เกี่ยวข้อง พร้อมประเมินความเสียหายที่อาจเกิดขึ้นเป็นตัวเลข`
+5. Wait, screenshot, then send slide 78's prompt: `ช่วยทำแผนปฏิบัติแก้ไขความขัดแย้งทั้งหมด แยกตามความเร่งด่วน ระบุว่าแผนกไหนต้องทำอะไรภายในกี่ชั่วโมง แล้วร่างประกาศแจ้งทีมภายในให้ด้วย`
+
+Save to `/tmp/multiturn_3files_test_slide74.png`, `slide76.png`, `slide78.png`.
+
+**Pass condition**: slide 74's answer correctly identifies all the planted
+inconsistencies (sack count, net weight, FOB vs CIF, missing HS code/origin)
+across all three attached files — not just one or two files' worth of data,
+which would indicate ChatGPT only actually read one attachment. Slides 76/78
+should reference those specific found conflicts, not generic advice.
+
+**If it fails** (e.g. ChatGPT only references one of the three files, or
+asks "which document do you mean"), that's an important finding on its own:
+it would mean multi-file simultaneous upload doesn't carry the same way
+single-file upload did, and HOW TO 5 specifically would need either a
+prompt rewrite (e.g. asking the user to paste all three documents' text
+into one message instead of attaching files) or to stay un-screenshotted in
+the deck.
+
+## TEST CASE 3 — live form-filling on a real import/export business website
+
+All tests above only ever exercise a ChatGPT *chat* — none of them touch a
+real third-party website. This test checks a different, equally common
+real-world SME workflow: **using AI to help fill in and submit an actual
+form on an external website**, as part of a real import/export business
+operation — e.g. requesting a freight quote, not just asking ChatGPT
+questions in isolation.
+
+**Use case chosen:** requesting an export freight quote from a real
+international freight forwarder's public "Get a quote" / "Request a quote"
+web form — this is a genuine, frequent step in real export operations
+(booking a shipment), the form is public with no login required, and
+filling it out has no real-world legal consequence as long as you **stop
+before the final submit** (see safety note below).
+
+Examples of real public quote-request forms you can use (pick whichever
+loads cleanly for you — don't fight a broken page, just switch):
+- Maersk: `https://www.maersk.com/quote`
+- DHL Global Forwarding / DHL Express: their "Get a Quote" page under `dhl.com`
+- A regional Thai freight forwarder's own "Request a Quote" contact form
+
+**⚠️ Safety note — read before running this test:** these are real
+companies' real lead-generation forms. Filling them out and clicking final
+submit would send an actual business inquiry to a real freight forwarder
+under a fictional company name, which is not an outcome we want. **Fill in
+every field, screenshot the fully-filled form, but do NOT click the final
+submit/send button.** If the site requires solving a CAPTCHA or completing
+a step that effectively *is* the submit action to even see the filled
+state, stop one step earlier and screenshot what you have instead.
+
+Steps:
+1. Open a new ChatGPT chat (logged in is safest, in case any step nudges toward a file action) and attach `Sample_Thai_Export_Data.xlsx` (same file as the other tests).
+2. Send this prompt: `ฉันต้องขอใบเสนอราคาค่าขนส่งทางเรือ (freight quote) สำหรับส่งออกสินค้าตามไฟล์นี้ไปยังตลาดอันดับ 1 ที่คุณแนะนำ ช่วยสรุปข้อมูลที่ฟอร์มขอใบเสนอราคาของบริษัทขนส่งทั่วไปมักถาม เช่น ต้นทาง ปลายทาง น้ำหนัก/ปริมาณ ประเภทตู้คอนเทนเนอร์ Incoterm และวันที่พร้อมส่งสินค้า โดยใช้ตัวเลขจากไฟล์ของฉัน`
+3. Screenshot ChatGPT's answer (the field-by-field values it suggests) — save as `/tmp/formfill_test_ai_answer.png`.
+4. Open one of the real freight-forwarder quote-request URLs above in a new tab.
+5. Manually fill each field on the real form using the values ChatGPT suggested in step 3 (origin port, destination, weight, container type, Incoterm, ready date, contact info — use a clearly fictional company name/email like `test@example.com` so no real company is misrepresented).
+6. Screenshot the **fully-filled, not-yet-submitted** form — save as `/tmp/formfill_test_filled_form.png`.
+7. **Do not click submit.** Optionally screenshot a visible "Review your request" step if the form has one and it doesn't itself constitute submission.
+
+**Pass condition**: every field ChatGPT suggested in step 3 maps cleanly
+onto an actual field that exists on the real form (no improvised fields the
+form doesn't have, no real form fields left unaddressed by the AI's
+suggestions), and the values are consistent with the uploaded file's actual
+contents (real product, real weight/quantity, a real destination port for
+whatever market the file's analysis points to).
+
+**Report back**: pass/fail, plus a one-line note on which form you used and
+whether any field's format (e.g. a dropdown with fixed options) required
+you to deviate from ChatGPT's literal suggestion.
