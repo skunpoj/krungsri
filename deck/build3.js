@@ -50,6 +50,12 @@ async function imgDim(relName) {
   const meta = await sharp(file).metadata();
   return { file, w: meta.width, h: meta.height };
 }
+const LIVE_PROOF_DIR = path.join(__dirname, "assets", "live_proof");
+async function liveProofDim(relName) {
+  const file = path.join(LIVE_PROOF_DIR, relName);
+  const meta = await sharp(file).metadata();
+  return { file, w: meta.width, h: meta.height };
+}
 
 // ── shared chrome ──────────────────────────────────────────────────────────
 function topBar(s, A, kicker, stepNum, stepTotal) {
@@ -248,6 +254,29 @@ function resultSlide(o) {
   pageFoot(s, o.foot || "นี่คือคำตอบจริงจาก AI — ใช้เป็นจุดตั้งต้น ตรวจสอบตัวเลข/กฎกับแหล่งทางการก่อนใช้จริง");
 }
 
+// ── TEMPLATE 4B — liveProofSlide ────────────────────────────────────────────
+// Real screenshot captured from a live ChatGPT (or other live website) test run —
+// proof that the prompt on the previous page genuinely produces this, not an
+// illustrative mock-up. Image is shown at native aspect ratio, never cropped/stretched.
+function liveProofSlide(o) {
+  const s = pres.addSlide(); bg(s); const A = o.accent;
+  topBar(s, A, o.label);
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.55, y: 1.0, w: 12.23, h: 0.62, fill: { color: P.d6 }, line: { type: "none" }, rectRadius: 0.08 });
+  s.addImage({ data: IC.checkW, x: 0.78, y: 1.15, w: 0.32, h: 0.32 });
+  s.addText(o.title || "ภาพหน้าจอจริงจากการทดสอบสด — ไม่ใช่ภาพตัวอย่างจำลอง", { x: 1.24, y: 1.0, w: 11.32, h: 0.62, fontFace: F, fontSize: 16, bold: true, color: "FFFFFF", align: "left", valign: "middle", margin: 0 });
+  const cardX = 0.55, cardY = 1.78, cardW = 12.23, cardH = 4.55;
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: cardX, y: cardY, w: cardW, h: cardH, fill: { color: "FFFFFF" }, line: { color: A, width: 1.25 }, rectRadius: 0.08, shadow: shadowSoft() });
+  const pad = 0.16;
+  const boxW = cardW - pad * 2, boxH = cardH - pad * 2;
+  const { w: iw, h: ih } = o._imgDim;
+  let dw = boxW, dh = (ih / iw) * dw;
+  if (dh > boxH) { dh = boxH; dw = (iw / ih) * dh; }
+  const ix = cardX + (cardW - dw) / 2, iy = cardY + (cardH - dh) / 2;
+  s.addImage({ path: o.image, x: ix, y: iy, w: dw, h: dh });
+  s.addShape(pres.shapes.RECTANGLE, { x: ix, y: iy, w: dw, h: dh, fill: { type: "none" }, line: { color: P.border, width: 0.75 } });
+  pageFoot(s, o.foot || "ภาพจริงจากการทดสอบสด — คำตอบของ AI อาจต่างไปบ้างในแต่ละครั้งที่รัน เนื้อหาหลักจะคล้ายกัน");
+}
+
 function closingSlide(o) {
   const s = pres.addSlide(); bg(s, P.cap); const A = P.gold;
   s.addText(o.kicker || `HOW TO ${o.num} — สรุป`, { x: 0.6, y: 0.9, w: 12.13, h: 0.5, fontFace: F, fontSize: 17, bold: true, color: A, charSpacing: 3, align: "center", margin: 0 });
@@ -340,16 +369,22 @@ async function buildHowTo1() {
   { const qr = await qrPng(STEP1_PROMPT);
     actionStepSlide({ accent: H1.accent, label: H1.label, stepNum: 5, stepTotal: total, headline: "พิมพ์คำสั่งนี้ แล้วกดส่ง", kind: "qr", qr, promptText: STEP1_PROMPT, detail: "หรือสแกน QR ทางขวาเพื่อเปิดแชตพร้อมข้อความนี้ทันทีบนมือถือ" }); }
   resultSlide({ accent: H1.accent, label: H1.label, title: "AI ตอบ — Top 5 ตลาดส่งออกปี 2026", body: RESULT1, fontSize: 15.5 });
+  { const d = await liveProofDim("howto1_step1_markets.png");
+    liveProofSlide({ accent: H1.accent, label: H1.label, image: d.file, _imgDim: d, title: "ภาพหน้าจอจริง — ทดสอบสดบน ChatGPT (ตลาด #1 ที่ AI แนะนำจะขึ้นอยู่กับรอบที่รัน)" }); }
 
   // Step block 2 — find buyers (continue same chat)
   { const qr = await qrPng(STEP2_PROMPT);
     actionStepSlide({ accent: H1.accent, label: H1.label, stepNum: 6, stepTotal: total, headline: "พิมพ์ต่อในแชตเดิม ไม่ต้องเริ่มใหม่", kind: "qr", qr, promptText: STEP2_PROMPT, detail: "AI จำไฟล์และบทสนทนาก่อนหน้าได้ จึงตอบต่อเนื่องโดยไม่ต้องอัปโหลดไฟล์ซ้ำ" }); }
-  resultSlide({ accent: H1.accent, label: H1.label, title: "AI ตอบ — ผู้นำเข้า/ผู้ซื้อตัวจริงในอินเดีย", body: RESULT2, fontSize: 15.5 });
+  resultSlide({ accent: H1.accent, label: H1.label, title: "AI ตอบ — ผู้นำเข้า/ผู้ซื้อตัวจริงในตลาดอันดับ 1 ที่ AI แนะนำ", body: RESULT2, fontSize: 15.5 });
+  { const d = await liveProofDim("howto1_step2_buyers.png");
+    liveProofSlide({ accent: H1.accent, label: H1.label, image: d.file, _imgDim: d, title: "ภาพหน้าจอจริง — ทดสอบสดบน ChatGPT (ชื่อผู้ซื้อจริงในตลาดที่ AI เลือกจากขั้นที่แล้ว)" }); }
 
   // Step block 3 — draft email
   { const qr = await qrPng(STEP3_PROMPT);
     actionStepSlide({ accent: H1.accent, label: H1.label, stepNum: 7, stepTotal: total, headline: "พิมพ์คำสั่งให้ร่างอีเมลถึงผู้ซื้อที่เลือก", kind: "qr", qr, promptText: STEP3_PROMPT, detail: "เปลี่ยนชื่อบริษัท/ผู้ซื้อในข้อความให้ตรงกับที่คุณเลือกจากขั้นที่แล้ว" }); }
   resultSlide({ accent: H1.accent, label: H1.label, title: "AI ตอบ — อีเมลพร้อมส่ง + คำตอบเตรียมไว้ล่วงหน้า", body: RESULT3, fontSize: 15 });
+  { const d = await liveProofDim("howto1_step3_email.png");
+    liveProofSlide({ accent: H1.accent, label: H1.label, image: d.file, _imgDim: d, title: "ภาพหน้าจอจริง — ทดสอบสดบน ChatGPT (อีเมลร่างจริงถึงผู้ซื้อที่ AI เลือก)" }); }
 
   closingSlide({
     num: 1,
@@ -373,7 +408,7 @@ const H2 = {
   num: 2, accent: P.d1, label: "HOW TO 2 · ภาษี-ต้นทุนนำเข้า",
   title: "AI คำนวณภาษีนำเข้าและต้นทุนที่แท้จริง\nก่อนเสนอราคาลูกค้าต่างประเทศ",
   objective: "ให้ AI ช่วยตอบคำถามที่ตัดสินใจได้ว่าจะ “ขายแล้วได้กำไรจริงหรือไม่” — เพราะราคา FOB หน้าโรงงานอย่างเดียวไม่บอกต้นทุนที่แท้จริงเมื่อสินค้าไปถึงมือผู้ซื้อ",
-  scenario: "จากขั้นที่แล้ว Siam Rice เลือกอินเดียเป็นตลาดอันดับหนึ่ง แต่ทีมขายยังอยากรู้ว่าถ้าจะลองตลาดสหรัฐฯ ด้วย จะเจอภาษี Trump Reciprocal Tariff เท่าไหร่ และเทียบกับตลาดอื่นแล้วคุ้มหรือไม่",
+  scenario: "จากขั้นที่แล้ว Siam Rice ได้ตลาดอันดับหนึ่งที่ AI แนะนำมาแล้ว แต่ทีมขายยังอยากรู้ว่าถ้าจะลองตลาดสหรัฐฯ ด้วย จะเจอภาษี Trump Reciprocal Tariff เท่าไหร่ และเทียบกับตลาดอื่นแล้วคุ้มหรือไม่",
   problem: "ภาษีนำเข้าเปลี่ยนบ่อยและซับซ้อน มีทั้งภาษีฐาน (MFN) ภาษีตอบโต้ (Reciprocal Tariff) และสิทธิพิเศษทางการค้า (FTA) ซ้อนกันหลายชั้น ถ้าคำนวณผิดอาจเสนอราคาขาดทุนโดยไม่รู้ตัว",
   aiTask: "ให้ AI ช่วย (1) หาภาษีนำเข้าที่แท้จริงตาม HS Code (2) คำนวณ landed cost ต่อกิโลกรัมเทียบหลายตลาด (3) ชี้สิทธิประโยชน์ FTA ที่ลดภาษีได้ (4) สรุปเป็นตารางพร้อมร่างอีเมลเสนอราคา",
   outcome: "ได้ตัวเลขต้นทุนที่แท้จริงต่อหน่วยในแต่ละตลาด พร้อมรู้ว่าควรใช้เอกสารสิทธิพิเศษทางการค้าใดเพื่อลดภาษีให้เหลือน้อยที่สุดหรือเป็น 0% — ก่อนเสนอราคาให้ผู้ซื้อจริง",
@@ -830,6 +865,44 @@ async function buildBonus2() {
   return page;
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// BONUS 3 — เอาคำตอบ AI ไปกรอกฟอร์มจริงบนเว็บผู้รับขนส่ง (สาธิตสด)
+// ════════════════════════════════════════════════════════════════════════════
+const HB3 = {
+  num: "พิเศษ 3", kicker: "BONUS 3 · ใช้คำตอบ AI กรอกฟอร์มจริง", accent: P.d2, label: "BONUS 3 · กรอกฟอร์มขอใบเสนอราคาขนส่ง",
+  title: "เอาคำตอบจาก AI ไปกรอกฟอร์มขอใบเสนอราคา\nขนส่งสินค้าบนเว็บผู้รับขนส่งจริง",
+  objective: "แสดงให้เห็นว่าคำตอบจาก AI (ตลาด เส้นทาง น้ำหนัก ประเภทตู้คอนเทนเนอร์) เอาไปกรอกลงฟอร์มขอใบเสนอราคาขนส่งจริงบนเว็บไซต์ผู้รับขนส่งได้ทันที ไม่ต้องแปลงข้อมูลเอง",
+  scenario: "ใช้ไฟล์ข้อมูลส่งออกเดียวกับ HOW TO 1 ถาม AI ให้สรุปฟิลด์ที่ต้องใช้ขอใบเสนอราคาขนส่ง แล้วเอาคำตอบนั้นไปกรอกฟอร์ม “Request a quote” ของผู้รับขนส่งจริง (SeaRates)",
+  problem: "ฟอร์มขอใบเสนอราคาขนส่งมีฟิลด์เฉพาะทาง (ประเภทตู้ Incoterm ท่าเรือต้นทาง/ปลายทาง) ที่ผู้ใช้ทั่วไปไม่คุ้นเคย ต้องแปลงจากข้อมูลส่งออกดิบเอง",
+  aiTask: "ถาม AI ว่า “จากไฟล์นี้ ฟิลด์ใบเสนอราคาขนส่งควรกรอกอะไรบ้าง” แล้วเอาคำตอบไปกรอกในฟอร์มจริงทีละฟิลด์",
+  outcome: "ฟิลด์มาตรฐานของฟอร์มขอใบเสนอราคาขนส่งเกือบทุกฟิลด์กรอกได้ตรงจากคำตอบของ AI ทันที — ส่วนที่ไม่มีฟิลด์ตรงตัว (เช่น Incoterm บางแบบ) ใส่ไว้ในช่อง “Additional Information” แทน",
+};
+
+async function buildBonus3() {
+  let page = 0;
+  howToOpenSlide(HB3); page++;
+  { const d = await liveProofDim("bonus3_form_cargo.png");
+    liveProofSlide({ accent: HB3.accent, label: HB3.label, image: d.file, _imgDim: d,
+      title: "ภาพหน้าจอจริง — กรอกฟอร์ม SeaRates ด้วยค่าที่ AI แนะนำ (สินค้า/เส้นทาง/น้ำหนัก/ตู้คอนเทนเนอร์)",
+      foot: "ตัวอย่างใช้ข้อมูลติดต่อสมมติ ไม่กดส่งฟอร์มจริง — ใช้เพื่อสาธิตว่าคำตอบ AI กรอกลงฟอร์มจริงได้ตรง" }); } page++;
+  { const d = await liveProofDim("bonus3_form_contact.png");
+    liveProofSlide({ accent: HB3.accent, label: HB3.label, image: d.file, _imgDim: d,
+      title: "ภาพหน้าจอจริง — ส่วนข้อมูลติดต่อ + ช่อง Additional Information",
+      foot: "Incoterm และตู้คอนเทนเนอร์ลำที่สองไม่มีฟิลด์ตรงตัวในฟอร์มนี้ — ใส่ไว้ในช่อง Additional Information แทน" }); } page++;
+  closingSlide({
+    kicker: "BONUS 3 — สรุป", num: "พิเศษ 3",
+    headline: "จากคำตอบ AI สู่ฟอร์มขอใบเสนอราคาขนส่งจริง",
+    recap: [
+      "คำตอบจาก AI (ตลาด/เส้นทาง/น้ำหนัก/ตู้คอนเทนเนอร์) กรอกลงฟอร์มจริงได้ตรงเกือบทุกฟิลด์",
+      "ฟิลด์ที่ฟอร์มไม่มีตรงตัว (เช่น Incoterm) ใส่ในช่อง Additional Information แทนได้",
+      "ใช้ได้กับฟอร์มขอใบเสนอราคาของผู้รับขนส่งรายอื่นในลักษณะเดียวกัน",
+      "ทดสอบกรอกจริงแล้ว แต่ไม่กดส่งฟอร์มจริงเพื่อความปลอดภัยของข้อมูล",
+    ],
+    next: "จบคู่มือ — กลับไปเริ่มที่ HOW TO 1 ได้ทุกเมื่อด้วยไฟล์ข้อมูลส่งออกของกิจการคุณเอง",
+  });
+  return page;
+}
+
 (async () => {
   const ICraw = await buildIcons(P);
   IC = { ...ICraw };
@@ -844,6 +917,7 @@ async function buildBonus2() {
   await buildHowTo5();
   await buildBonus1();
   await buildBonus2();
+  await buildBonus3();
 
   await pres.writeFile({ fileName: "/home/user/krungsri/deck/out3.pptx" });
   console.log("WROTE out3.pptx — total slides:", pres.slides.length);
