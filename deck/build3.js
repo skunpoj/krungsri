@@ -4,6 +4,8 @@
 // AI answers written as flowing essay paragraphs (not bullets).
 const pptxgen = require("pptxgenjs");
 const QRCode = require("qrcode");
+const sharp = require("sharp");
+const path = require("path");
 const { buildIcons } = require("./icons.js");
 
 const P = {
@@ -41,7 +43,13 @@ async function qrPng(text) {
   return qrPngUrl("https://chatgpt.com/?q=" + encodeURIComponent(text));
 }
 const REPO_RAW = "https://raw.githubusercontent.com/skunpoj/krungsri/claude/ai-sme-workshop-handoff-gfde4c/";
-function rawUrl(path) { return REPO_RAW + path; }
+function rawUrl(p) { return REPO_RAW + p; }
+const PREVIEW_DIR = path.join(__dirname, "assets", "previews");
+async function imgDim(relName) {
+  const file = path.join(PREVIEW_DIR, relName);
+  const meta = await sharp(file).metadata();
+  return { file, w: meta.width, h: meta.height };
+}
 
 // ── shared chrome ──────────────────────────────────────────────────────────
 function topBar(s, A, kicker, stepNum, stepTotal) {
@@ -115,16 +123,36 @@ function filePreviewSlide(o) {
   const s = pres.addSlide(); bg(s); const A = o.accent;
   topBar(s, A, o.label);
   s.addText(o.fileName, { x: 0.55, y: 1.0, w: 12.23, h: 0.6, fontFace: F, fontSize: 23, bold: true, color: P.ink, align: "left", valign: "middle", margin: 0 });
-  s.addText("ตัวอย่างเนื้อหาในไฟล์นี้", { x: 0.55, y: 1.56, w: 12.23, h: 0.36, fontFace: F, fontSize: 14, bold: true, color: A, charSpacing: 1, align: "left", valign: "middle", margin: 0 });
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.55, y: 2.0, w: 12.23, h: 4.55, fill: { color: "FFFFFF" }, line: { color: A, width: 1.25 }, rectRadius: 0.08, shadow: shadowSoft() });
+  s.addText("ตัวอย่างเนื้อหาในไฟล์นี้ (ภาพจริงจากไฟล์)", { x: 0.55, y: 1.56, w: 12.23, h: 0.36, fontFace: F, fontSize: 14, bold: true, color: A, charSpacing: 1, align: "left", valign: "middle", margin: 0 });
+  const cardX = 0.55, cardY = 2.0, cardW = 12.23, cardH = 4.55;
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: cardX, y: cardY, w: cardW, h: cardH, fill: { color: "FFFFFF" }, line: { color: A, width: 1.25 }, rectRadius: 0.08, shadow: shadowSoft() });
   const rows = o.rows;
-  const rh = 4.25 / rows.length;
-  rows.forEach((r, i) => {
-    const y = 2.17 + i * rh;
-    if (i > 0) s.addShape(pres.shapes.LINE, { x: 0.78, y, w: 11.77, h: 0, line: { color: P.border, width: 0.75 } });
-    s.addText(r[0], { x: 0.78, y, w: 3.1, h: rh, fontFace: F, fontSize: 14, bold: true, color: A, align: "left", valign: "middle", margin: 0 });
-    s.addText(r[1], { x: 3.95, y, w: 8.55, h: rh, fontFace: F, fontSize: 14, color: P.ink, align: "left", valign: "middle", lineSpacingMultiple: 1.05, margin: 0 });
-  });
+  if (o.previewImage) {
+    const pad = 0.22;
+    const imgBoxW = cardW * 0.42, imgBoxH = cardH - pad * 2;
+    const { w: iw, h: ih } = o._imgDim;
+    let dw = imgBoxW, dh = (ih / iw) * dw;
+    if (dh > imgBoxH) { dh = imgBoxH; dw = (iw / ih) * dh; }
+    const ix = cardX + pad + (imgBoxW - dw) / 2, iy = cardY + pad + (imgBoxH - dh) / 2;
+    s.addImage({ path: o.previewImage, x: ix, y: iy, w: dw, h: dh });
+    s.addShape(pres.shapes.RECTANGLE, { x: cardX + pad, y: cardY + pad, w: imgBoxW, h: imgBoxH, fill: { type: "none" }, line: { color: P.border, width: 0.75 } });
+    const textX = cardX + pad + imgBoxW + pad, textW = cardW - imgBoxW - pad * 3;
+    const rh = imgBoxH / rows.length;
+    rows.forEach((r, i) => {
+      const y = cardY + pad + i * rh;
+      if (i > 0) s.addShape(pres.shapes.LINE, { x: textX, y, w: textW, h: 0, line: { color: P.border, width: 0.75 } });
+      s.addText(r[0], { x: textX, y, w: textW, h: rh * 0.42, fontFace: F, fontSize: 13.5, bold: true, color: A, align: "left", valign: "bottom", margin: 0 });
+      s.addText(r[1], { x: textX, y: y + rh * 0.42, w: textW, h: rh * 0.58, fontFace: F, fontSize: 13, color: P.ink, align: "left", valign: "top", lineSpacingMultiple: 1.05, margin: 0 });
+    });
+  } else {
+    const rh = 4.25 / rows.length;
+    rows.forEach((r, i) => {
+      const y = 2.17 + i * rh;
+      if (i > 0) s.addShape(pres.shapes.LINE, { x: 0.78, y, w: 11.77, h: 0, line: { color: P.border, width: 0.75 } });
+      s.addText(r[0], { x: 0.78, y, w: 3.1, h: rh, fontFace: F, fontSize: 14, bold: true, color: A, align: "left", valign: "middle", margin: 0 });
+      s.addText(r[1], { x: 3.95, y, w: 8.55, h: rh, fontFace: F, fontSize: 14, color: P.ink, align: "left", valign: "middle", lineSpacingMultiple: 1.05, margin: 0 });
+    });
+  }
   pageFoot(s, o.foot || "นี่คือตัวอย่างจริงจากไฟล์ภาคผนวก — หน้าถัดไปมี QR ให้ดาวน์โหลดไฟล์นี้");
 }
 
@@ -274,12 +302,12 @@ async function buildHowTo1() {
 
   howToOpenSlide(H1); page++;
   docStorySlide(DOC1); page++;
-  filePreviewSlide({ accent: H1.accent, label: H1.label, fileName: "Sample_Thai_Export_Data.xlsx", rows: [
-    ["แถวที่ 1", "วันที่ส่งออก: 2025-02-14 | สินค้า: ข้าวหอมมะลิเกรด A | ประเทศปลายทาง: เวียดนาม | น้ำหนัก: 18,000 กก. | มูลค่า: $26,100 | Incoterm: FOB"],
-    ["แถวที่ 2", "วันที่ส่งออก: 2025-03-02 | สินค้า: ข้าวหอมมะลิเกรด A | ประเทศปลายทาง: จีน | น้ำหนัก: 24,000 กก. | มูลค่า: $37,200 | Incoterm: CIF"],
-    ["แถวที่ 3", "วันที่ส่งออก: 2025-04-19 | สินค้า: ข้าวขาว 5% | ประเทศปลายทาง: อินเดีย | น้ำหนัก: 30,000 กก. | มูลค่า: $40,500 | Incoterm: FOB"],
-    ["...", "รวมทั้งหมด 72 แถวแบบนี้ ครอบคลุมสินค้า 5 ประเภท และประเทศปลายทาง 10 ประเทศ ตั้งแต่ปี 2025 ถึงต้นปี 2026"],
-  ] }); page++;
+  { const d = await imgDim("Sample_Thai_Export_Data.png");
+    filePreviewSlide({ accent: H1.accent, label: H1.label, fileName: "Sample_Thai_Export_Data.xlsx", previewImage: d.file, _imgDim: d, rows: [
+    ["สินค้า/ตลาด", "ข้าวหอมมะลิ ข้าวขาว ชิ้นส่วนยานยนต์ ถุงมือยาง สับปะรดกระป๋อง ส่งไปกว่า 10 ประเทศ"],
+    ["จำนวนแถว", "รวม 72 แถว ตั้งแต่ปี 2025 ถึงต้นปี 2026 ครอบคลุมสินค้า 5 ประเภท"],
+    ["คอลัมน์หลัก", "เดือน, สินค้า, HS Code, ประเทศปลายทาง, จำนวน (กก.), มูลค่า (USD), Incoterms, ผู้ซื้อ"],
+  ] }); } page++;
   { const qr = await qrPngUrl(rawUrl("deck/Sample_Thai_Export_Data.xlsx"));
     fileLinkSlide({ accent: H1.accent, label: H1.label, fileName: "Sample_Thai_Export_Data.xlsx", qr,
       desc: "ไฟล์บันทึกการส่งออก 72 รายการที่ใช้ในขั้นตอนถัดไปทั้งหมดของ HOW TO 1 — สแกน QR เพื่อดาวน์โหลดไฟล์จริงจากภาคผนวกของแพ็กเกจคู่มือ แล้วใช้แทนไฟล์ข้อมูลส่งออกของกิจการคุณเองได้เลย",
@@ -358,12 +386,12 @@ async function buildHowTo2() {
   let page = 0; const total = 13;
   howToOpenSlide(H2); page++;
   docStorySlide(DOC2); page++;
-  filePreviewSlide({ accent: H2.accent, label: H2.label, fileName: "Sample_Thai_Export_Data.xlsx (ใช้ไฟล์เดียวกับ HOW TO 1)", rows: [
+  { const d = await imgDim("Sample_Thai_Export_Data.png");
+    filePreviewSlide({ accent: H2.accent, label: H2.label, fileName: "Sample_Thai_Export_Data.xlsx (ใช้ไฟล์เดียวกับ HOW TO 1)", previewImage: d.file, _imgDim: d, rows: [
     ["FOB", "ราคา FOB กรุงเทพฯ ของข้าวหอมมะลิเกรด A: $1.45 ต่อกิโลกรัม"],
     ["HS Code", "1006.30.90 — พิกัดศุลกากรข้าวหอมมะลิเกรดพรีเมียม"],
     ["ปริมาณ", "ตัวอย่างออเดอร์ 20,000 กิโลกรัม มูลค่ารวม $29,000"],
-    ["ตลาดที่สนใจ", "สหรัฐฯ / สหภาพยุโรป / จีน / อินเดีย / เวียดนาม — เทียบ landed cost ในขั้นต่อไป"],
-  ] }); page++;
+  ] }); } page++;
   { const qr = await qrPngUrl(rawUrl("deck/Sample_Thai_Export_Data.xlsx"));
     fileLinkSlide({ accent: H2.accent, label: H2.label, fileName: "Sample_Thai_Export_Data.xlsx", qr,
       desc: "ไฟล์ข้อมูลส่งออกเดียวกับ HOW TO 1 — มีราคา FOB และพิกัดศุลกากรที่ใช้คำนวณภาษีและ landed cost ในขั้นตอนนี้ สแกน QR เพื่อดาวน์โหลด",
@@ -434,20 +462,22 @@ async function buildHowTo3() {
   let page = 0; const total = 11;
   howToOpenSlide(H3); page++;
   docStorySlide(DOC3); page++;
-  filePreviewSlide({ accent: H3.accent, label: H3.label, fileName: "A1_MultiProduct_Invoice_INV-2026-087.pdf", rows: [
+  { const d = await imgDim("A1_MultiProduct_Invoice_INV-2026-087.png");
+    filePreviewSlide({ accent: H3.accent, label: H3.label, fileName: "A1_MultiProduct_Invoice_INV-2026-087.pdf", previewImage: d.file, _imgDim: d, rows: [
     ["ผู้ขาย/ผู้ซื้อ", "Siam Rice Co., Ltd. → ผู้ซื้อต่างประเทศ พร้อมที่อยู่และเลขทะเบียนเต็มรูปแบบ"],
     ["รายการสินค้า", "หลายรายการในใบเดียว (multi-product) แต่ละบรรทัดมี HS Code น้ำหนัก ราคาต่อหน่วยแยกกัน"],
     ["เงื่อนไข", "Incoterm + วิธีชำระเงิน + เลขที่ใบสั่งซื้ออ้างอิงระบุไว้ครบที่หัวเอกสาร"],
-  ] }); page++;
+  ] }); } page++;
   { const qr = await qrPngUrl(rawUrl("handoff/02_documents_assets/A1_MultiProduct_Invoice_INV-2026-087.pdf"));
     fileLinkSlide({ accent: H3.accent, label: H3.label, fileName: "A1_MultiProduct_Invoice_INV-2026-087.pdf", qr,
       desc: "ตัวอย่าง Commercial Invoice จริงที่มีหลายรายการสินค้าในใบเดียว ใช้เป็นต้นแบบรูปแบบเอกสารที่ AI จะช่วยร่างให้ในขั้นถัดไป",
       url: rawUrl("handoff/02_documents_assets/A1_MultiProduct_Invoice_INV-2026-087.pdf") }); } page++;
-  filePreviewSlide({ accent: H3.accent, label: H3.label, fileName: "A2_MultiProduct_PackingList_PL-2026-087.pdf", rows: [
+  { const d = await imgDim("A2_MultiProduct_PackingList_PL-2026-087.png");
+    filePreviewSlide({ accent: H3.accent, label: H3.label, fileName: "A2_MultiProduct_PackingList_PL-2026-087.pdf", previewImage: d.file, _imgDim: d, rows: [
     ["คู่กับ Invoice", "เลขที่เอกสารอ้างอิงกลับไปยัง Invoice ฉบับเดียวกัน ตัวเลขต้องตรงกันทุกบรรทัด"],
     ["น้ำหนัก/บรรจุภัณฑ์", "แยกน้ำหนักสุทธิและน้ำหนักรวมเป็นรายบรรทัดสินค้า พร้อมจำนวนพาเลท/หีบ"],
     ["เครื่องหมายหน้าหีบ", "Shipping marks ระบุชื่อผู้รับ ปลายทาง และเลขลำดับกล่อง"],
-  ] }); page++;
+  ] }); } page++;
   { const qr = await qrPngUrl(rawUrl("handoff/02_documents_assets/A2_MultiProduct_PackingList_PL-2026-087.pdf"));
     fileLinkSlide({ accent: H3.accent, label: H3.label, fileName: "A2_MultiProduct_PackingList_PL-2026-087.pdf", qr,
       desc: "ตัวอย่าง Packing List คู่กันกับ Invoice ฉบับก่อนหน้า ใช้ดูว่าตัวเลขทั้งสองเอกสารต้องตรงกันแบบไหนก่อนยื่นจริง",
@@ -514,12 +544,12 @@ async function buildHowTo4() {
   let page = 0; const total = 11;
   howToOpenSlide(H4); page++;
   docStorySlide(DOC4); page++;
-  filePreviewSlide({ accent: H4.accent, label: H4.label, fileName: "B1_HardCase_Invoice_INV-2026-LC-099.pdf", rows: [
+  { const d = await imgDim("B1_HardCase_Invoice_INV-2026-LC-099.png");
+    filePreviewSlide({ accent: H4.accent, label: H4.label, fileName: "B1_HardCase_Invoice_INV-2026-LC-099.pdf", previewImage: d.file, _imgDim: d, rows: [
     ["ผู้ขาย/ผู้ซื้อ", "Siam Garment Co. → Fashion Import GmbH ประเทศเยอรมนี พร้อมที่อยู่เต็มรูปแบบ"],
     ["สินค้า", "เสื้อยืดผ้าฝ้าย พิกัดศุลกากร 6109.10 จำนวน 5,000 ตัว"],
-    ["น้ำหนัก/ราคา", "น้ำหนักสุทธิ น้ำหนักรวม ราคาต่อหน่วย และมูลค่ารวมระบุไว้ครบ"],
     ["เงื่อนไข", "FOB กรุงเทพฯ ชำระเงินแบบ L/C at sight — แต่ขาดเลข EORI ของผู้ซื้อ"],
-  ] }); page++;
+  ] }); } page++;
   { const qr = await qrPngUrl(rawUrl("handoff/02_documents_assets/B1_HardCase_Invoice_INV-2026-LC-099.pdf"));
     fileLinkSlide({ accent: H4.accent, label: H4.label, fileName: "B1_HardCase_Invoice_INV-2026-LC-099.pdf", qr,
       desc: "ตัวอย่าง Invoice จริงที่มีจุดเสี่ยงซ่อนอยู่ (ขาดเลข EORI, พิกัดศุลกากรไม่ครบหลัก) — ใช้ฝึกให้ AI สกัดข้อมูลและตรวจความเสี่ยงในขั้นถัดไป",
@@ -586,26 +616,29 @@ async function buildHowTo5() {
   let page = 0; const total = 11;
   howToOpenSlide(H5); page++;
   docStorySlide(DOC5); page++;
-  filePreviewSlide({ accent: H5.accent, label: H5.label, fileName: "B1_HardCase_Invoice_INV-2026-LC-099.pdf", rows: [
+  { const d = await imgDim("B1_HardCase_Invoice_INV-2026-LC-099.png");
+    filePreviewSlide({ accent: H5.accent, label: H5.label, fileName: "B1_HardCase_Invoice_INV-2026-LC-099.pdf", previewImage: d.file, _imgDim: d, rows: [
     ["จำนวน/น้ำหนัก", "ระบุ 1,200 กระสอบ น้ำหนักสุทธิ 30,000 กิโลกรัม"],
     ["เงื่อนไข", "FOB กรุงเทพฯ — ใช้ตัวเลขนี้เทียบกับอีกสองเอกสารในขั้นถัดไป"],
-  ] }); page++;
+  ] }); } page++;
   { const qr = await qrPngUrl(rawUrl("handoff/02_documents_assets/B1_HardCase_Invoice_INV-2026-LC-099.pdf"));
     fileLinkSlide({ accent: H5.accent, label: H5.label, fileName: "B1_HardCase_Invoice_INV-2026-LC-099.pdf", qr,
       desc: "เอกสารชุดที่ 1 จาก 3 ชุดของออเดอร์เดียวกัน ใช้คู่กับ Packing List และ Sales Contract เพื่อตรวจความสอดคล้อง",
       url: rawUrl("handoff/02_documents_assets/B1_HardCase_Invoice_INV-2026-LC-099.pdf") }); } page++;
-  filePreviewSlide({ accent: H5.accent, label: H5.label, fileName: "B2_HardCase_PackingList_PL-2026-LC-099.pdf", rows: [
+  { const d = await imgDim("B2_HardCase_PackingList_PL-2026-LC-099.png");
+    filePreviewSlide({ accent: H5.accent, label: H5.label, fileName: "B2_HardCase_PackingList_PL-2026-LC-099.pdf", previewImage: d.file, _imgDim: d, rows: [
     ["จำนวน/น้ำหนัก", "ระบุเพียง 1,180 กระสอบ น้ำหนักสุทธิ 29,500 กิโลกรัม — ไม่ตรงกับ Invoice"],
     ["เงื่อนไข", "ระบุ FOB กรุงเทพฯ ตรงกับ Invoice"],
-  ] }); page++;
+  ] }); } page++;
   { const qr = await qrPngUrl(rawUrl("handoff/02_documents_assets/B2_HardCase_PackingList_PL-2026-LC-099.pdf"));
     fileLinkSlide({ accent: H5.accent, label: H5.label, fileName: "B2_HardCase_PackingList_PL-2026-LC-099.pdf", qr,
       desc: "เอกสารชุดที่ 2 จาก 3 ชุด — สังเกตว่าจำนวนกระสอบและน้ำหนักไม่ตรงกับ Invoice ฉบับก่อนหน้า",
       url: rawUrl("handoff/02_documents_assets/B2_HardCase_PackingList_PL-2026-LC-099.pdf") }); } page++;
-  filePreviewSlide({ accent: H5.accent, label: H5.label, fileName: "B3_HardCase_SalesContract_SC-2026-JPN-055.pdf", rows: [
+  { const d = await imgDim("B3_HardCase_SalesContract_SC-2026-JPN-055.png");
+    filePreviewSlide({ accent: H5.accent, label: H5.label, fileName: "B3_HardCase_SalesContract_SC-2026-JPN-055.pdf", previewImage: d.file, _imgDim: d, rows: [
     ["เงื่อนไข", "ระบุเป็น CIF ฮัมบูร์ก — ขัดแย้งกับ FOB ในอีกสองเอกสาร"],
     ["ข้อมูลที่ขาด", "ไม่มีพิกัดศุลกากรและประเทศแหล่งกำเนิดสินค้าระบุไว้เลย"],
-  ] }); page++;
+  ] }); } page++;
   { const qr = await qrPngUrl(rawUrl("handoff/02_documents_assets/B3_HardCase_SalesContract_SC-2026-JPN-055.pdf"));
     fileLinkSlide({ accent: H5.accent, label: H5.label, fileName: "B3_HardCase_SalesContract_SC-2026-JPN-055.pdf", qr,
       desc: "เอกสารชุดที่ 3 จาก 3 ชุด — เงื่อนไขการส่งมอบขัดแย้งกับอีกสองเอกสาร และขาดข้อมูลสำคัญที่ศุลกากรต้องใช้",
@@ -666,10 +699,11 @@ async function buildBonus1() {
   let page = 0; const total = 6;
   howToOpenSlide(HB1); page++;
   docStorySlide(DOCB1); page++;
-  filePreviewSlide({ accent: HB1.accent, label: HB1.label, fileName: "Sample_Thai_Export_Data.xlsx (ไฟล์เดียวกับ HOW TO 1)", rows: [
+  { const d = await imgDim("Sample_Thai_Export_Data.png");
+    filePreviewSlide({ accent: HB1.accent, label: HB1.label, fileName: "Sample_Thai_Export_Data.xlsx (ไฟล์เดียวกับ HOW TO 1)", previewImage: d.file, _imgDim: d, rows: [
     ["ขนาดไฟล์", "72 รายการส่งออก ปี 2025 ถึงต้นปี 2026 ครอบคลุมสินค้า 5 ประเภท"],
     ["ใช้ทำอะไร", "ทีมเอเจนต์ทั้ง 5 ตัวจะอ่านไฟล์นี้ไฟล์เดียวแล้วแบ่งงานกันทำครบ 6 ขั้น"],
-  ] }); page++;
+  ] }); } page++;
   { const qr = await qrPngUrl(rawUrl("deck/Sample_Thai_Export_Data.xlsx"));
     fileLinkSlide({ accent: HB1.accent, label: HB1.label, fileName: "Sample_Thai_Export_Data.xlsx", qr,
       desc: "ไฟล์ข้อมูลส่งออกไฟล์เดียวกับที่ใช้ใน HOW TO 1 — แนบไฟล์นี้พร้อมกับคำสั่งมาสเตอร์ในขั้นถัดไปเพื่อให้ทีมเอเจนต์เริ่มทำงาน",
@@ -739,10 +773,11 @@ async function buildBonus2() {
   let page = 0; const total = 10;
   howToOpenSlide(HB2); page++;
   docStorySlide(DOCB2); page++;
-  filePreviewSlide({ accent: HB2.accent, label: HB2.label, fileName: "Sample_Thai_Export_Data.xlsx (ไฟล์เดียวกับ HOW TO 1)", rows: [
+  { const d = await imgDim("Sample_Thai_Export_Data.png");
+    filePreviewSlide({ accent: HB2.accent, label: HB2.label, fileName: "Sample_Thai_Export_Data.xlsx (ไฟล์เดียวกับ HOW TO 1)", previewImage: d.file, _imgDim: d, rows: [
     ["ขนาดไฟล์", "72 รายการส่งออก ปี 2025 ถึงต้นปี 2026 ครอบคลุมสินค้า 5 ประเภท และ 10 ประเทศปลายทาง"],
     ["ใช้ทำอะไร", "อัปโหลดครั้งเดียวในแชตเดียว แล้วใช้ซ้ำได้ตลอดทั้ง 6 คำสั่งถัดไป"],
-  ] }); page++;
+  ] }); } page++;
   { const qr = await qrPngUrl(rawUrl("deck/Sample_Thai_Export_Data.xlsx"));
     fileLinkSlide({ accent: HB2.accent, label: HB2.label, fileName: "Sample_Thai_Export_Data.xlsx", qr,
       desc: "ไฟล์ข้อมูลส่งออกไฟล์เดียวกับที่ใช้ใน HOW TO 1 — แนบไฟล์นี้ในขั้นแรกของแชตเดียว แล้วใช้ต่อได้ตลอดทั้ง 6 ขั้น",
