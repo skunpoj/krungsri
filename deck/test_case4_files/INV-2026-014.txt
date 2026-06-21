@@ -1,0 +1,23 @@
+COMMERCIAL INVOICE
+
+Invoice No.: INV-2026-014
+Date: 2026-03-12
+
+Seller: Siam Rice Co., Ltd.
+123 Sukhumvit Road, Bangkok, Thailand
+
+Buyer: EuroFood GmbH
+Speicherstadt 14, 20457 Hamburg, Germany
+
+Vessel: EVER GIVEN, Voyage VOY-2026-018 (2 trips)
+
+Goods: Thai Hom Mali Rice (Jasmine Rice)
+HS Code: 1006.30.90
+Quantity: 1,200 sacks x 25 kg
+Unit Price: USD 0.62 / kg
+Total Value: USD 18,600.00
+
+Terms: FOB Bangkok
+Payment: L/C at sight
+
+Country of Origin: Thailand

@@ -49,7 +49,7 @@ it's just a probe to decide the next step.
 
 ## TEST CASE — multi-turn replay (run this one first)
 
-Slides 13, 30, 42, 44, 56, 58, 74, 76, 78, 88, 97, 99, 100, 101, 102 show a
+Slides 11, 13, 30, 42, 44, 56, 58, 74, 76, 78, 88, 97, 99, 100, 101, 102 show a
 generic/clarifying answer when opened standalone, because their prompt text
 assumes it's typed as a follow-up in a chat that already has earlier turns'
 context (anaphoric references like "the markets we compared", "that order",
@@ -147,16 +147,45 @@ continuing through turns 98–102.
 Report back: pass/fail per turn, plus whether the file upload persisted
 across turns 98–102 without re-attaching.
 
+## TEST CASE 1B — HOW TO 1, file upload + multi-turn, with the fixed prompts
+
+Run this one too — it's the same mechanism Test Case 2 already proved
+(file upload + multi-turn replay, logged in), but on the **just-fixed**
+slide 11/13 prompts. The old prompts named a specific market ("ตลาดอินเดีย")
+and buyer ("ITC Limited") that don't match what the real file actually
+returns; the new prompts are anaphoric instead, so this also re-validates
+that the fix actually resolves correctly in a live chat.
+
+Steps:
+1. Open a **brand-new** `chatgpt.com` chat, **logged in** (the attach button
+   shows a login wall otherwise).
+2. Attach `Sample_Thai_Export_Data.xlsx` (same file as Test Case 2,
+   downloadable from the link in that section above).
+3. Send slide 9's prompt: `จากไฟล์ข้อมูลส่งออกนี้ ช่วยวิเคราะห์ Top 5 ตลาดส่งออกของฉันปี 2026 — ดูจากดีมานด์ การเติบโต ภาษี และคู่แข่ง เรียงลำดับพร้อมเหตุผล`
+4. Wait, screenshot, then send slide 11's **new** prompt (no re-attaching):
+   `ในตลาดอันดับ 1 ที่แนะนำมา ใครคือผู้นำเข้า/ผู้จัดจำหน่ายสินค้าหลักของฉันที่มีโอกาสมากที่สุดในตลาดนั้นรายใหญ่? ช่วยหารายชื่อบริษัท ประเภทธุรกิจ และช่องทางติดต่อที่หาได้ พร้อมแนะนำว่าควรเข้าหาอย่างไร`
+5. Wait, screenshot, then send slide 13's **new** prompt: `ร่างอีเมลแนะนำสินค้าและบริษัทเราถึงผู้นำเข้ารายแรกที่แนะนำมา เป็นภาษาอังกฤษ โทนมืออาชีพ กระชับ เน้นคุณภาพ ราคา และใบรับรอง แล้วเตรียมคำตอบสำหรับคำถามที่เขาน่าจะถาม`
+
+Save to `/tmp/multiturn_howto1_slide9.png`, `slide11.png`, `slide13.png`.
+
+**Pass condition**: slide 11's answer names a real importer/distributor in
+*whatever market slide 9 actually put at #1* (don't expect "India" — expect
+whatever the real file returns, e.g. Japan), not a generic "which market do
+you mean?" Slide 13's answer is a populated, specific email addressed to
+that same named importer, not a `[Company Name]` placeholder.
+
 ## HOW TO 1 — หาตลาด/ผู้ซื้อ
 
 **Slide 9** — จากไฟล์ข้อมูลส่งออกนี้ ช่วยวิเคราะห์ Top 5 ตลาดส่งออกของฉันปี 2026 — ดูจากดีมานด์ การเติบโต ภาษี และคู่แข่ง เรียงลำดับพร้อมเหตุผล
 https://chatgpt.com/?q=%E0%B8%88%E0%B8%B2%E0%B8%81%E0%B9%84%E0%B8%9F%E0%B8%A5%E0%B9%8C%E0%B8%82%E0%B9%89%E0%B8%AD%E0%B8%A1%E0%B8%B9%E0%B8%A5%E0%B8%AA%E0%B9%88%E0%B8%87%E0%B8%AD%E0%B8%AD%E0%B8%81%E0%B8%99%E0%B8%B5%E0%B9%89%20%E0%B8%8A%E0%B9%88%E0%B8%A7%E0%B8%A2%E0%B8%A7%E0%B8%B4%E0%B9%80%E0%B8%84%E0%B8%A3%E0%B8%B2%E0%B8%B0%E0%B8%AB%E0%B9%8C%20Top%205%20%E0%B8%95%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%AA%E0%B9%88%E0%B8%87%E0%B8%AD%E0%B8%AD%E0%B8%81%E0%B8%82%E0%B8%AD%E0%B8%87%E0%B8%89%E0%B8%B1%E0%B8%99%E0%B8%9B%E0%B8%B5%202026%20%E2%80%94%20%E0%B8%94%E0%B8%B9%E0%B8%88%E0%B8%B2%E0%B8%81%E0%B8%94%E0%B8%B5%E0%B8%A1%E0%B8%B2%E0%B8%99%E0%B8%94%E0%B9%8C%20%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B9%80%E0%B8%95%E0%B8%B4%E0%B8%9A%E0%B9%82%E0%B8%95%20%E0%B8%A0%E0%B8%B2%E0%B8%A9%E0%B8%B5%20%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%84%E0%B8%B9%E0%B9%88%E0%B9%81%E0%B8%82%E0%B9%88%E0%B8%87%20%E0%B9%80%E0%B8%A3%E0%B8%B5%E0%B8%A2%E0%B8%87%E0%B8%A5%E0%B8%B3%E0%B8%94%E0%B8%B1%E0%B8%9A%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%AD%E0%B8%A1%E0%B9%80%E0%B8%AB%E0%B8%95%E0%B8%B8%E0%B8%9C%E0%B8%A5
 
-**Slide 11** — ในตลาดอินเดีย ใครคือผู้นำเข้า/ผู้จัดจำหน่ายข้าวหอมมะลิรายใหญ่? ช่วยหารายชื่อบริษัท ประเภทธุรกิจ และช่องทางติดต่อที่หาได้ พร้อมแนะนำว่าควรเข้าหาอย่างไร
-https://chatgpt.com/?q=%E0%B9%83%E0%B8%99%E0%B8%95%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%AD%E0%B8%B4%E0%B8%99%E0%B9%80%E0%B8%94%E0%B8%B5%E0%B8%A2%20%E0%B9%83%E0%B8%84%E0%B8%A3%E0%B8%84%E0%B8%B7%E0%B8%AD%E0%B8%9C%E0%B8%B9%E0%B9%89%E0%B8%99%E0%B8%B3%E0%B9%80%E0%B8%82%E0%B9%89%E0%B8%B2%2F%E0%B8%9C%E0%B8%B9%E0%B9%89%E0%B8%88%E0%B8%B1%E0%B8%94%E0%B8%88%E0%B8%B3%E0%B8%AB%E0%B8%99%E0%B9%88%E0%B8%A2%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B8%AB%E0%B8%AD%E0%B8%A1%E0%B8%A1%E0%B8%B0%E0%B8%A5%E0%B8%B4%E0%B8%A3%E0%B8%B2%E0%B8%A2%E0%B9%83%E0%B8%AB%E0%B8%8D%E0%B9%88%3F%20%E0%B8%8A%E0%B9%88%E0%B8%A7%E0%B8%A2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%B2%E0%B8%A2%E0%B8%8A%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%9A%E0%B8%A3%E0%B8%B4%E0%B8%A9%E0%B8%B1%E0%B8%97%20%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B9%80%E0%B8%A0%E0%B8%97%E0%B8%98%E0%B8%B8%E0%B8%A3%E0%B8%81%E0%B8%B4%E0%B8%88%20%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%8A%E0%B9%88%E0%B8%AD%E0%B8%87%E0%B8%97%E0%B8%B2%E0%B8%87%E0%B8%95%E0%B8%B4%E0%B8%94%E0%B8%95%E0%B9%88%E0%B8%AD%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%AB%E0%B8%B2%E0%B9%84%E0%B8%94%E0%B9%89%20%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%AD%E0%B8%A1%E0%B9%81%E0%B8%99%E0%B8%B0%E0%B8%99%E0%B8%B3%E0%B8%A7%E0%B9%88%E0%B8%B2%E0%B8%84%E0%B8%A7%E0%B8%A3%E0%B9%80%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%AD%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B9%84%E0%B8%A3
+**Slide 11** ⚠ **FIXED** (was hardcoded "ตลาดอินเดีย" — Test 2 proved the real sample file's actual #1 market is Japan, not India, so this would have asked about a market the AI never recommended; now anaphoric on whatever market turn 1 actually names) — ในตลาดอันดับ 1 ที่แนะนำมา ใครคือผู้นำเข้า/ผู้จัดจำหน่ายสินค้าหลักของฉันที่มีโอกาสมากที่สุดในตลาดนั้นรายใหญ่? ช่วยหารายชื่อบริษัท ประเภทธุรกิจ และช่องทางติดต่อที่หาได้ พร้อมแนะนำว่าควรเข้าหาอย่างไร
+https://chatgpt.com/?q=%E0%B9%83%E0%B8%99%E0%B8%95%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%AD%E0%B8%B1%E0%B8%99%E0%B8%94%E0%B8%B1%E0%B8%9A%201%20%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%81%E0%B8%99%E0%B8%B0%E0%B8%99%E0%B8%B3%E0%B8%A1%E0%B8%B2%20%E0%B9%83%E0%B8%84%E0%B8%A3%E0%B8%84%E0%B8%B7%E0%B8%AD%E0%B8%9C%E0%B8%B9%E0%B9%89%E0%B8%99%E0%B8%B3%E0%B9%80%E0%B8%82%E0%B9%89%E0%B8%B2%2F%E0%B8%9C%E0%B8%B9%E0%B9%89%E0%B8%88%E0%B8%B1%E0%B8%94%E0%B8%88%E0%B8%B3%E0%B8%AB%E0%B8%99%E0%B9%88%E0%B8%A2%E0%B8%AA%E0%B8%B4%E0%B8%99%E0%B8%84%E0%B9%89%E0%B8%B2%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81%E0%B8%82%E0%B8%AD%E0%B8%87%E0%B8%89%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%A1%E0%B8%B5%E0%B9%82%E0%B8%AD%E0%B8%81%E0%B8%AA%E0%B8%B2%E0%B8%AA%E0%B8%B8%E0%B8%94%E0%B9%83%E0%B8%99%E0%B8%95%E0%B8%A5%E0%B8%B2%E0%B8%94%E0%B8%99%E0%B8%B1%E0%B9%89%E0%B8%99%E0%B8%A3%E0%B8%B2%E0%B8%A2%E0%B9%83%E0%B8%AB%E0%B8%8D%E0%B9%88%3F%20%E0%B8%8A%E0%B9%88%E0%B8%A7%E0%B8%A2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%B2%E0%B8%A2%E0%B8%8A%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%9A%E0%B8%A3%E0%B8%B4%E0%B8%A9%E0%B8%B1%E0%B8%97%20%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B9%80%E0%B8%A0%E0%B8%97%E0%B8%98%E0%B8%B8%E0%B8%A3%E0%B8%81%E0%B8%B4%E0%B8%88%20%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%8A%E0%B9%88%E0%B8%AD%E0%B8%87%E0%B8%97%E0%B8%B2%E0%B8%87%E0%B8%95%E0%B8%B4%E0%B8%94%E0%B8%95%E0%B9%88%E0%B8%AD%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B8%AB%E0%B8%B2%E0%B9%84%E0%B8%94%E0%B9%89%20%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%AD%E0%B8%A1%E0%B9%81%E0%B8%99%E0%B8%B0%E0%B8%99%E0%B8%B3%E0%B8%A7%E0%B9%88%E0%B8%B2%E0%B8%84%E0%B8%A7%E0%B8%A3%E0%B9%80%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%AD%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B9%84%E0%B8%A3
+This QR is now **anaphoric** — it only resolves correctly as turn 2 in the same chat after slide 9's turn 1 (Top-5 markets). Capture via multi-turn replay, not standalone.
 
-**Slide 13** — ร่างอีเมลแนะนำสินค้าและบริษัทเราถึง ITC Limited เป็นภาษาอังกฤษ โทนมืออาชีพ กระชับ เน้นคุณภาพ ราคา และใบรับรอง แล้วเตรียมคำตอบสำหรับคำถามที่เขาน่าจะถาม
-https://chatgpt.com/?q=%E0%B8%A3%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%AD%E0%B8%B5%E0%B9%80%E0%B8%A1%E0%B8%A5%E0%B9%81%E0%B8%99%E0%B8%B0%E0%B8%99%E0%B8%B3%E0%B8%AA%E0%B8%B4%E0%B8%99%E0%B8%84%E0%B9%89%E0%B8%B2%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%9A%E0%B8%A3%E0%B8%B4%E0%B8%A9%E0%B8%B1%E0%B8%97%E0%B9%80%E0%B8%A3%E0%B8%B2%E0%B8%96%E0%B8%B6%E0%B8%87%20ITC%20Limited%20%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%E0%B8%A0%E0%B8%B2%E0%B8%A9%E0%B8%B2%E0%B8%AD%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B8%A4%E0%B8%A9%20%E0%B9%82%E0%B8%97%E0%B8%99%E0%B8%A1%E0%B8%B7%E0%B8%AD%E0%B8%AD%E0%B8%B2%E0%B8%8A%E0%B8%B5%E0%B8%9E%20%E0%B8%81%E0%B8%A3%E0%B8%B0%E0%B8%8A%E0%B8%B1%E0%B8%9A%20%E0%B9%80%E0%B8%99%E0%B9%89%E0%B8%99%E0%B8%84%E0%B8%B8%E0%B8%93%E0%B8%A0%E0%B8%B2%E0%B8%9E%20%E0%B8%A3%E0%B8%A3%E0%B8%B2%E0%B8%84%E0%B8%B2%20%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B9%83%E0%B8%9A%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B8%A3%E0%B8%AD%E0%B8%87%20%E0%B9%81%E0%B8%A5%E0%B9%89%E0%B8%A7%E0%B9%80%E0%B8%95%E0%B8%A3%E0%B8%B5%E0%B8%A2%E0%B8%A1%E0%B8%84%E0%B8%B3%E0%B8%95%E0%B8%AD%E0%B8%9A%E0%B8%AA%E0%B8%B3%E0%B8%AB%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B8%84%E0%B8%B3%E0%B8%96%E0%B8%B2%E0%B8%A1%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%82%E0%B8%B2%E0%B8%99%E0%B9%88%E0%B8%B2%E0%B8%88%E0%B8%B0%E0%B8%96%E0%B8%B2%E0%B8%A1
+**Slide 13** ⚠ **FIXED** (was hardcoded "ITC Limited" — same root cause as slide 11; now anaphoric on whichever importer turn 2 actually names) — ร่างอีเมลแนะนำสินค้าและบริษัทเราถึงผู้นำเข้ารายแรกที่แนะนำมา เป็นภาษาอังกฤษ โทนมืออาชีพ กระชับ เน้นคุณภาพ ราคา และใบรับรอง แล้วเตรียมคำตอบสำหรับคำถามที่เขาน่าจะถาม
+https://chatgpt.com/?q=%E0%B8%A3%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%AD%E0%B8%B5%E0%B9%80%E0%B8%A1%E0%B8%A5%E0%B9%81%E0%B8%99%E0%B8%B0%E0%B8%99%E0%B8%B3%E0%B8%AA%E0%B8%B4%E0%B8%99%E0%B8%84%E0%B9%89%E0%B8%B2%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%9A%E0%B8%A3%E0%B8%B4%E0%B8%A9%E0%B8%B1%E0%B8%97%E0%B9%80%E0%B8%A3%E0%B8%B2%E0%B8%96%E0%B8%B6%E0%B8%87%E0%B8%9C%E0%B8%B9%E0%B9%89%E0%B8%99%E0%B8%B3%E0%B9%80%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A3%E0%B8%B2%E0%B8%A2%E0%B9%81%E0%B8%A3%E0%B8%81%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%81%E0%B8%99%E0%B8%B0%E0%B8%99%E0%B8%B3%E0%B8%A1%E0%B8%B2%20%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%E0%B8%A0%E0%B8%B2%E0%B8%A9%E0%B8%B2%E0%B8%AD%E0%B8%B1%E0%B8%87%E0%B8%81%E0%B8%A4%E0%B8%A9%20%E0%B9%82%E0%B8%97%E0%B8%99%E0%B8%A1%E0%B8%B7%E0%B8%AD%E0%B8%AD%E0%B8%B2%E0%B8%8A%E0%B8%B5%E0%B8%9E%20%E0%B8%81%E0%B8%A3%E0%B8%B0%E0%B8%8A%E0%B8%B1%E0%B8%9A%20%E0%B9%80%E0%B8%99%E0%B9%89%E0%B8%99%E0%B8%84%E0%B8%B8%E0%B8%93%E0%B8%A0%E0%B8%B2%E0%B8%9E%20%E0%B8%A3%E0%B8%B2%E0%B8%84%E0%B8%B2%20%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B9%83%E0%B8%9A%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B8%A3%E0%B8%AD%E0%B8%87%20%E0%B9%81%E0%B8%A5%E0%B9%89%E0%B8%A7%E0%B9%80%E0%B8%95%E0%B8%A3%E0%B8%B5%E0%B8%A2%E0%B8%A1%E0%B8%84%E0%B8%B3%E0%B8%95%E0%B8%AD%E0%B8%9A%E0%B8%AA%E0%B8%B3%E0%B8%AB%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B8%84%E0%B8%B3%E0%B8%96%E0%B8%B2%E0%B8%A1%E0%B8%97%E0%B8%B5%E0%B9%88%E0%B9%80%E0%B8%82%E0%B8%B2%E0%B8%99%E0%B9%88%E0%B8%B2%E0%B8%88%E0%B8%B0%E0%B8%96%E0%B8%B2%E0%B8%A1
+This QR is now **anaphoric** — it only resolves correctly as turn 3 in the same chat after slides 9 and 11. Capture via multi-turn replay, not standalone.
 
 ## HOW TO 2 — ภาษี/landed cost
 
@@ -273,7 +302,7 @@ this table to decide what to capture next; don't re-derive it from scratch.
 
 | Section | Slides | Needs | Status |
 |---|---|---|---|
-| HOW TO 1 (หาตลาด/ผู้ซื้อ) | 9, 11, 13 | File upload (turn 1) + multi-turn replay (turns 2–3) | **Not tested.** Same mechanism as the now-confirmed Bonus-2 method, so low risk — but note slide 11/13's prompts hardcode "ตลาดอินเดีย" / "ITC Limited" as the assumed #1 market/buyer. If the real file's actual #1 market isn't India (Test 2 showed Japan for the Bonus-2 file), a literal run will answer about a different market/buyer than the deck's illustrative `RESULT1`–`RESULT3` text describes. Capture it anyway and caption with whatever market/buyer the real run actually returns. |
+| HOW TO 1 (หาตลาด/ผู้ซื้อ) | 9, 11, 13 | File upload (turn 1) + multi-turn replay (turns 2–3) | **FIXED in `build3.js`, not yet captured.** Slides 11/13's prompts used to hardcode "ตลาดอินเดีย" / "ITC Limited" — confirmed wrong by Test 2 (the real file's actual #1 market is Japan, not India). Rewrote `STEP2_PROMPT`/`STEP3_PROMPT` to be generically anaphoric ("ตลาดอันดับ 1 ที่แนะนำมา" / "ผู้นำเข้ารายแรกที่แนะนำมา"), same style as the proven Bonus-2 prompts, and rebuilt `out3.pptx`. See **TEST CASE 1B** below for the exact capture steps with the new prompt text. Caption with whatever market/buyer the real run actually returns — don't reuse the old India/ITC illustrative copy. |
 | HOW TO 2 (ภาษี/landed cost) | 24, 26, 28, 30 | Multi-turn replay, no file | **Done — Test Case 1, PASS** (pending the re-crop noted above). |
 | HOW TO 3 (ร่างเอกสารส่งออก) | 42, 44, 46 | Multi-turn replay, **no file needed** — slide 42's prompt embeds the full order data as text, no attachment required | **Not tested**, but same low-risk profile as Test Case 1 (text-only continuation). Recommend running before final capture, but it's not the priority gap. |
 | HOW TO 4 (อ่านเอกสารส่งออก) | 56, 58, 60 | The deck's mock step says "attach the Invoice file," but slide 56's prompt also embeds the invoice's full data as text — worth confirming whether it works via **text-only multi-turn with no real attachment** | **Not tested.** If it works without an attachment, this sidesteps the login-wall requirement entirely for this HOW TO — worth confirming specifically. |
@@ -297,14 +326,21 @@ for the same order, deliberately containing inconsistent numbers), then
 asking ChatGPT to cross-check them. This hasn't been tried — confirm it
 works the same way single-file upload did in Test Case 2.
 
-You'll need three small files. Use the deck's actual numbers (the
-inconsistencies are deliberate, by design — that's the point of HOW TO 5):
-- `INV-2026-014.txt` — an invoice for Siam Rice → EuroFood GmbH, Hamburg: **1,200 sacks**, FOB Bangkok.
-- `PL-2026-014.txt` — a packing list for the same order: **1,180 sacks**, **29,500 kg** net weight (deliberately different from the invoice).
-- `SC-2026-007.txt` — a sales contract for the same order: **CIF Hamburg** (deliberately conflicts with the invoice/packing list's FOB term), and omits the HS code / country of origin.
+**The three files already exist** — `deck/test_case4_files/INV-2026-014.txt`,
+`PL-2026-014.txt`, `SC-2026-007.txt` (committed to the repo, branch
+`claude/ai-sme-workshop-handoff-gfde4c`). Download them from:
+- `https://raw.githubusercontent.com/skunpoj/krungsri/claude/ai-sme-workshop-handoff-gfde4c/deck/test_case4_files/INV-2026-014.txt`
+- `https://raw.githubusercontent.com/skunpoj/krungsri/claude/ai-sme-workshop-handoff-gfde4c/deck/test_case4_files/PL-2026-014.txt`
+- `https://raw.githubusercontent.com/skunpoj/krungsri/claude/ai-sme-workshop-handoff-gfde4c/deck/test_case4_files/SC-2026-007.txt`
 
-(Plain `.txt` files with those few fields typed out are fine — the point is
-testing whether ChatGPT reads and cross-references **multiple simultaneously
+The planted inconsistencies (don't reveal these to ChatGPT — they're the
+answer key for grading the test, not part of the prompt):
+- Invoice: **1,200 sacks**, FOB Bangkok, HS Code 1006.30.90, country of origin Thailand.
+- Packing List: **1,180 sacks**, **29,500 kg** net weight (differs from invoice's sack count).
+- Sales Contract: **CIF Hamburg** (conflicts with the invoice/packing list's FOB term), no HS code or country of origin stated.
+
+(Plain `.txt` files with those few fields typed out — the point is testing
+whether ChatGPT reads and cross-references **multiple simultaneously
 attached files**, not testing real document parsing fidelity.)
 
 Steps:
