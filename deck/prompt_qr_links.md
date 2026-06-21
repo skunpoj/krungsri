@@ -7,6 +7,46 @@ and note the slide number — that's where it should be inserted.
 (The 10 file-download QRs point to `raw.githubusercontent.com` and don't need
 screenshots — those were already verified separately.)
 
+## Context for a fresh session picking this up
+
+This is repo `skunpoj/krungsri`, branch `claude/ai-sme-workshop-handoff-gfde4c`.
+The deck is `deck/build3.js` → `deck/out3.pptx` (104-slide Thai workshop deck).
+23 of its slides have a QR code linking to `chatgpt.com/?q=<prompt>` so
+attendees can scan and see a live AI answer. We're collecting screenshots of
+those answers to insert into the deck as "here's what you'll actually see"
+proof images.
+
+**Already done** (don't redo): all 23 standalone screenshots were captured,
+cropped, and committed to `deck/assets/chatgpt_screens/slide_NN.png`
+(`NN` = slide number). The crop pipeline used: source screenshots were
+1293×1045px full-browser captures; crop to `(330,105,1260,930)` to strip the
+address bar/tab strip, left chat-history sidebar, and bottom cookie banner;
+then paint a black rectangle over `(415,20,915,300)` (in the *cropped*
+image's coordinates) to blot out a "Sign in to chatgpt.com with google.com"
+popup that appeared on most captures. If your browser window/zoom differs,
+re-derive these boxes visually rather than reusing the numbers blindly.
+
+**The problem we found**: auditing those 23, ~15 show a generic/clarifying
+ChatGPT reply instead of the deck's intended specific answer. Root cause:
+those prompts were written assuming "type this in the *same chat* as the
+previous step" (e.g. "the markets we compared", "that order", "market #1"),
+but each QR opens a brand-new chat with zero history, so ChatGPT can't
+resolve the reference.
+
+**What this test is for**: checking whether replaying the prior turns in one
+real chat session (rather than opening the final prompt standalone) produces
+a correct, specific answer — i.e., whether conversation continuity alone
+fixes it. If yes, multi-turn replay becomes the capture method for the
+affected file-upload-free slides. If no, the fix has to be rewriting the
+prompt text itself (in `build3.js`) to restate context inline, which is a
+separate, bigger task we'd tackle next regardless of this result.
+
+**Output expected from you**: save the turn-4 screenshot (cropped, popup
+removed) to `/tmp/multiturn_test_slide30.png`, and reply in chat with
+pass/fail per the condition below plus a one-line description of what the
+answer actually contained. Don't commit anything to the repo for this test —
+it's just a probe to decide the next step.
+
 ## TEST CASE — multi-turn replay (run this one first)
 
 Slides 13, 30, 42, 44, 56, 58, 74, 76, 78, 88, 97, 99, 100, 101, 102 show a
