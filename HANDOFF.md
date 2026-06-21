@@ -32,38 +32,50 @@ AI (ChatGPT / Claude Code) for five concrete tasks ("HOW TO 1–5") plus two
 
 ## Current state of v22 (as of this handoff)
 
-`deck/out3.pptx` has **84 slides**, fully covering all 5 HOW TOs + both Bonus
-sections, each following the same 4-part structure:
+`deck/out3.pptx` has **104 slides**, fully covering all 5 HOW TOs + both Bonus
+sections, each following the same structure:
 
 1. **Opening/objective slide** (`howToOpenSlide`) — วัตถุประสงค์ / สถานการณ์ /
    ปัญหา / ให้ AI ทำอะไร / ผลลัพธ์ที่คาดหวัง
 2. **Document/data story slide** (`docStorySlide`) — one example
    document/file per page, narrated as a short story with stat callouts
-3. **Step-by-step action slides** (`actionStepSlide`) — one literal
+3. **File preview slide(s)** (`filePreviewSlide`) — a literal content
+   preview (table-style rows) of the actual input file used in that
+   chapter, one preview per source file (chapters with multiple source
+   documents, e.g. HOW TO 3 and HOW TO 5, get one preview slide per file).
+4. **File download-link slide(s)** (`fileLinkSlide`) — a large QR code +
+   filename + description + raw URL, pointing straight at the real file
+   committed in this repo (via `raw.githubusercontent.com`), so the
+   audience can download the exact file used in that chapter to practice
+   with. Always paired 1:1 with a preceding `filePreviewSlide`, never
+   combined onto the same slide.
+5. **Step-by-step action slides** (`actionStepSlide`) — one literal
    click/action per page (open browser → click "+" → attach file → wait for
    upload → type prompt / scan QR → send). Never combines multiple steps.
-4. **Result slides** (`resultSlide`) — the AI's answer written as a full Thai
+6. **Result slides** (`resultSlide`) — the AI's answer written as a full Thai
    essay paragraph (not bullets), large font, one logical result per page.
 
 Each chapter ends with a `closingSlide` recap pointing to the next chapter.
 
 Page breakdown:
 
-| Chapter | Slides | Topic | Source material reused from `inject_rich.py` |
+| Chapter | Slides | Topic | File preview/link source(s) |
 |---|---|---|---|
-| HOW TO 1 | 13 | Find markets & buyers | `RICH[(1,*)]` (captured in earlier session) |
-| HOW TO 2 | 15 | Tariffs & landed cost | `RICH[(2,1)]`–`RICH[(2,4)]` |
-| HOW TO 3 | 12 | Generate export documents | `RICH[(3,1)]`–`RICH[(3,3)]` |
-| HOW TO 4 | 12 | Read/extract + compliance risk | `RICH[(4,1)]`–`RICH[(4,3)]` |
-| HOW TO 5 | 12 | Cross-document consistency check | `RICH[(5,1)]`–`RICH[(5,3)]` |
-| Bonus 1 | 8 | Multi-agent "AI secretary" (Claude Code + Pixel Agents) | `build2.js` `archSlide()` / `masterPromptSlide()` |
-| Bonus 2 | 12 | Same 6-step pipeline, single ChatGPT chat, no tooling install | `build2.js` `bonus2TutorialSlide()` |
-| **Total** | **84** | | |
+| HOW TO 1 | 15 | Find markets & buyers | `deck/Sample_Thai_Export_Data.xlsx` |
+| HOW TO 2 | 17 | Tariffs & landed cost | `deck/Sample_Thai_Export_Data.xlsx` (reused) |
+| HOW TO 3 | 16 | Generate export documents | `A1_MultiProduct_Invoice...pdf` + `A2_MultiProduct_PackingList...pdf` |
+| HOW TO 4 | 14 | Read/extract + compliance risk | `B1_HardCase_Invoice_INV-2026-LC-099.pdf` |
+| HOW TO 5 | 18 | Cross-document consistency check | `B1` Invoice + `B2` Packing List + `B3` Sales Contract (3 files) |
+| Bonus 1 | 8 | Multi-agent "AI secretary" (Claude Code + Pixel Agents) | `deck/Sample_Thai_Export_Data.xlsx` (reused) |
+| Bonus 2 | 16 | Same 6-step pipeline, single ChatGPT chat, no tooling install | `deck/Sample_Thai_Export_Data.xlsx` (reused) |
+| **Total** | **104** | | |
 
-This came in under the original ~100-page aspiration. That's intentional, not
-a shortfall: page count is driven by how many genuinely distinct AI prompts
-each topic needs (3–6), not padding. Every page still strictly follows
-one-action/one-result-per-page — nothing was combined to hit a number.
+Every QR in a `fileLinkSlide` points to a `raw.githubusercontent.com` URL on
+branch `claude/ai-sme-workshop-handoff-gfde4c`, built via the `rawUrl(path)`
+helper in `build3.js` — distinct from the prompt-QR codes (`qrPng`/`qrPngUrl`
+against `chatgpt.com/?q=...`) used on `actionStepSlide`s. Page count is
+driven by how many genuinely distinct source files + AI prompts each topic
+needs, not padding — nothing was combined to hit a number.
 
 All narrative content (the essay-style "AI ตอบ ..." result slides) was
 manually rewritten from the bullet/table-style `RICH` dict in
