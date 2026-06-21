@@ -7,6 +7,42 @@ and note the slide number — that's where it should be inserted.
 (The 10 file-download QRs point to `raw.githubusercontent.com` and don't need
 screenshots — those were already verified separately.)
 
+## TEST CASE — multi-turn replay (run this one first)
+
+Slides 13, 30, 42, 44, 56, 58, 74, 76, 78, 88, 97, 99, 100, 101, 102 show a
+generic/clarifying answer when opened standalone, because their prompt text
+assumes it's typed as a follow-up in a chat that already has earlier turns'
+context (anaphoric references like "the markets we compared", "that order",
+"market #1" with nothing naming what that is).
+
+**Slide 30 is the cleanest test case** because its 3 prerequisite turns
+(slides 24, 26, 28) are all self-contained text prompts — no file upload
+involved, so a confirmed pass/fail here isolates the "needs prior chat
+turns" variable cleanly, without "needs an uploaded file" muddying the result.
+
+Steps:
+1. Open a **brand-new** `chatgpt.com` chat (not via QR this time — just the
+   site directly, so all 4 messages land in one conversation).
+2. Paste and send, **in this exact order, one at a time, waiting for each
+   reply before sending the next**:
+   1. (slide 24's prompt) `ข้าวหอมมะลิของฉัน HS Code 1006.30.90 ราคา FOB กรุงเทพฯ $1.45/kg ถ้าส่งไปสหรัฐฯ ตอนนี้เจอภาษีนำเข้าเท่าไหร่ ช่วยคำนวณ MFN base tariff รวมกับ Reciprocal Tariff ปี 2026 พร้อมตัวอย่าง landed cost ถึงท่าเรือ Los Angeles สำหรับออเดอร์ 20,000 กิโลกรัม`
+   2. (slide 26's prompt) `เปรียบเทียบ landed cost ต่อกิโลกรัมของข้าวหอมมะลิราคา FOB $1.45 ถ้าส่งไปสหรัฐฯ สหภาพยุโรป จีน อินเดีย และเวียดนาม ตลาดไหนคุ้มที่สุดเมื่อรวมภาษีนำเข้าแล้ว`
+   3. (slide 28's prompt) `มีสิทธิประโยชน์ทางภาษีอะไรที่ช่วยให้ส่งออกข้าวไปจีนหรืออินเดียได้ภาษี 0% บ้าง ต้องใช้เอกสารอะไร ขอที่ไหน ใช้เวลานานแค่ไหน และมีข้อควรระวังอะไรบ้าง`
+   4. (slide 30's prompt — **screenshot only this final answer**) `สรุปทุกตลาดที่เปรียบเทียบมาเป็นตารางเดียว (ภาษี/landed cost/ข้อแนะนำ) แล้วร่างอีเมลเสนอราคาภาษาอังกฤษไปยังผู้ซื้อในเยอรมนีที่ราคา CIF Hamburg พร้อมเน้นจุดขายเรื่องใบรับรองออร์แกนิก`
+3. Crop/save the screenshot of step 4's answer the same way as the others.
+
+**Pass condition**: the answer is a real comparison table covering all 4
+markets (US/EU/China/India/Vietnam) plus a populated English quote email to
+a German buyer at CIF Hamburg pricing — not a clarifying question, not a
+`[Your Company Name]` placeholder template.
+
+If this passes, multi-turn replay is a viable fix for the no-file-upload
+subset (slides 30, 76, 78, 97, 99, 102, roughly). If it fails too — i.e. even
+with full prior context loaded in the same session, turn 4 still comes back
+generic — that would point to something else going on (e.g. ChatGPT not
+reliably using earlier turns for this kind of synthesis prompt) and we
+should go straight to rewriting the prompts to be self-contained instead.
+
 ## HOW TO 1 — หาตลาด/ผู้ซื้อ
 
 **Slide 9** — จากไฟล์ข้อมูลส่งออกนี้ ช่วยวิเคราะห์ Top 5 ตลาดส่งออกของฉันปี 2026 — ดูจากดีมานด์ การเติบโต ภาษี และคู่แข่ง เรียงลำดับพร้อมเหตุผล
