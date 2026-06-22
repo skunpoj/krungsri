@@ -927,6 +927,27 @@ async function buildBonus3() {
   return page;
 }
 
+async function buildAppendixVideo() {
+  const A = P.d7;
+  const s1 = pres.addSlide(); bg(s1);
+  topBar(s1, A, "ภาคผนวก — วิดีโอบันทึกหน้าจอ");
+  s1.addText("วิดีโอบันทึกหน้าจอจริง — การทดสอบ HOW TO 2, 5 และ BONUS 2/3 สด", { x: 0.55, y: 1.15, w: 12.23, h: 0.9, fontFace: F, fontSize: 26, bold: true, color: P.ink, align: "left", valign: "top", margin: 0 });
+  s1.addText(
+    "บันทึกหน้าจอต่อเนื่องระหว่างการทดสอบจริงบน ChatGPT รวมขั้นตอนแนบไฟล์จริง " +
+    "(กดปุ่ม “+” → เลือกไฟล์จาก OS file picker → รอจนเห็นการ์ดไฟล์ในกล่องแชต) " +
+    "ไปจนถึงคำตอบของ AI ในแต่ละขั้น — ใช้ยืนยันว่าภาพหน้าจอนิ่งในหน้าก่อนหน้านี้มาจากการทดสอบสดจริง ไม่ใช่ภาพจำลอง",
+    { x: 0.55, y: 2.1, w: 12.23, h: 1.6, fontFace: F, fontSize: 15, color: P.ink2, align: "left", valign: "top", margin: 0, lineSpacing: 22 }
+  );
+  pageFoot(s1, "วิดีโออยู่ในหน้าถัดไป — ดับเบิลคลิกที่ภาพเพื่อเล่นใน PowerPoint (โปรแกรมดูไฟล์ pptx อื่นอาจแสดงเป็นภาพนิ่งแทน)");
+
+  const s2 = pres.addSlide(); bg(s2);
+  topBar(s2, A, "ภาคผนวก — วิดีโอบันทึกหน้าจอ");
+  const vidX = 0.55, vidY = 1.0, vidW = 12.23, vidH = 6.0;
+  s2.addShape(pres.shapes.RECTANGLE, { x: vidX, y: vidY, w: vidW, h: vidH, fill: { color: "111111" }, line: { color: A, width: 1.25 } });
+  s2.addMedia({ type: "video", path: path.join(__dirname, "assets", "video", "round3_recording_full.mp4"), x: vidX, y: vidY, w: vidW, h: vidH });
+  pageFoot(s2, "round3_recording_full.mp4 — บันทึกต่อเนื่อง (รวมส่วนต้น 81 วินาทีที่กู้คืนได้ + ส่วนที่เหลือจนจบ)");
+}
+
 (async () => {
   const ICraw = await buildIcons(P);
   IC = { ...ICraw };
@@ -942,6 +963,7 @@ async function buildBonus3() {
   await buildBonus1();
   await buildBonus2();
   await buildBonus3();
+  await buildAppendixVideo();
 
   await pres.writeFile({ fileName: "/home/user/krungsri/deck/out3.pptx" });
   console.log("WROTE out3.pptx — total slides:", pres.slides.length);
