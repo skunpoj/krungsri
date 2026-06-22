@@ -466,6 +466,10 @@ async function buildHowTo2() {
   { const qr = await qrPng(STEP2_4_PROMPT);
     actionStepSlide({ accent: H2.accent, label: H2.label, stepNum: 8, stepTotal: total, headline: "พิมพ์คำสั่งให้สรุปตารางและร่างอีเมลเสนอราคา", kind: "qr", qr, promptText: STEP2_4_PROMPT, detail: "เปลี่ยนชื่อผู้ซื้อ/ตลาดในข้อความให้ตรงกับลูกค้าจริงของคุณ" }); }
   resultSlide({ accent: H2.accent, label: H2.label, title: "AI ตอบ — ตารางสรุป + อีเมลเสนอราคา CIF Hamburg", body: RESULT2_4, fontSize: 14.5 });
+  { const d = await liveProofDim("howto2_step4_table.png");
+    liveProofSlide({ accent: H2.accent, label: H2.label, image: d.file, _imgDim: d, title: "ภาพหน้าจอจริง — ทดสอบสดบน ChatGPT (ตารางเปรียบเทียบ landed cost จริง)" }); }
+  { const d = await liveProofDim("howto2_step4_email.png");
+    liveProofSlide({ accent: H2.accent, label: H2.label, image: d.file, _imgDim: d, title: "ภาพหน้าจอจริง — ทดสอบสดบน ChatGPT (อีเมลเสนอราคา CIF Hamburg จริง)" }); }
   closingSlide({
     num: 2,
     headline: "จากราคา FOB เดียว สู่ต้นทุนแท้จริงในทุกตลาด",
@@ -703,12 +707,22 @@ async function buildHowTo5() {
   { const qr = await qrPng(STEP5_1_PROMPT);
     actionStepSlide({ accent: H5.accent, label: H5.label, stepNum: 4, stepTotal: total, headline: "พิมพ์คำสั่งให้เทียบตัวเลขทุกฟิลด์ระหว่างเอกสาร", kind: "qr", qr, promptText: STEP5_1_PROMPT, detail: "สแกน QR ทางขวาเพื่อเปิดแชตพร้อมข้อความนี้บนมือถือ" }); }
   resultSlide({ accent: H5.accent, label: H5.label, title: "AI ตอบ — พบความขัดแย้ง 5 จุดใน 15 วินาที", body: RESULT5_1, fontSize: 14.5 });
+  { const d = await liveProofDim("howto5_step1_compare.png");
+    liveProofSlide({ accent: H5.accent, label: H5.label, image: d.file, _imgDim: d, title: "ภาพหน้าจอจริง — ทดสอบสดบน ChatGPT (ตารางเทียบจำนวนกระสอบ/น้ำหนัก)" }); }
+  { const d = await liveProofDim("howto5_step1_compare2.png");
+    liveProofSlide({ accent: H5.accent, label: H5.label, image: d.file, _imgDim: d, title: "ภาพหน้าจอจริง — ทดสอบสดบน ChatGPT (ตาราง Incoterm/HS Code ที่ขัดแย้งกัน)" }); }
   { const qr = await qrPng(STEP5_2_PROMPT);
     actionStepSlide({ accent: H5.accent, label: H5.label, stepNum: 5, stepTotal: total, headline: "พิมพ์คำสั่งให้อธิบายผลกระทบของแต่ละจุด", kind: "qr", qr, promptText: STEP5_2_PROMPT, detail: "พิมพ์ต่อในแชตเดิม AI จะอ้างอิงกฎสากลที่เกี่ยวข้องให้" }); }
   resultSlide({ accent: H5.accent, label: H5.label, title: "AI ตอบ — ผลกระทบ + กฎอ้างอิง (UCP 600 / Incoterms)", body: RESULT5_2, fontSize: 14.5 });
+  { const d = await liveProofDim("howto5_step2_impact.png");
+    liveProofSlide({ accent: H5.accent, label: H5.label, image: d.file, _imgDim: d, title: "ภาพหน้าจอจริง — ทดสอบสดบน ChatGPT (ผลกระทบ + UCP 600 / Incoterms 2020 จริง)" }); }
   { const qr = await qrPng(STEP5_3_PROMPT);
     actionStepSlide({ accent: H5.accent, label: H5.label, stepNum: 6, stepTotal: total, headline: "พิมพ์คำสั่งให้ทำแผนแก้ไขพร้อมกำหนดเวลา", kind: "qr", qr, promptText: STEP5_3_PROMPT, detail: "AI จะแบ่งงานตามความเร่งด่วนและระบุว่าแผนกไหนต้องทำอะไร" }); }
   resultSlide({ accent: H5.accent, label: H5.label, title: "AI ตอบ — แผนปฏิบัติแก้ไข 3 ระดับความเร่งด่วน", body: RESULT5_3, fontSize: 14.5 });
+  { const d = await liveProofDim("howto5_step3_actionplan.png");
+    liveProofSlide({ accent: H5.accent, label: H5.label, image: d.file, _imgDim: d, title: "ภาพหน้าจอจริง — ทดสอบสดบน ChatGPT (แผนปฏิบัติแยกตามแผนก/กำหนดเวลาจริง)" }); }
+  { const d = await liveProofDim("howto5_step3_actionplan2.png");
+    liveProofSlide({ accent: H5.accent, label: H5.label, image: d.file, _imgDim: d, title: "ภาพหน้าจอจริง — ทดสอบสดบน ChatGPT (ร่างประกาศแจ้งทีมภายในจริง)" }); }
   closingSlide({
     num: 5,
     headline: "จากเอกสาร 3 ชุดที่ขัดแย้งกัน สู่แผนแก้ไขที่ปกป้องมูลค่าออเดอร์",
@@ -840,6 +854,10 @@ async function buildBonus2() {
   actionStepSlide({ accent: HB2.accent, label: HB2.label, stepNum: 2, stepTotal: total, headline: "รอจนไฟล์อัปโหลดเสร็จ", kind: "mock", mock: "uploaded", detail: "เห็นชื่อไฟล์เป็นการ์ดในกล่องแชตแล้ว พร้อมพิมพ์คำสั่งขั้นที่ 1" });
   { const qr = await qrPng(STEPB2_1);
     actionStepSlide({ accent: HB2.accent, label: HB2.label, stepNum: 3, stepTotal: total, headline: "ขั้นที่ 1 — พิมพ์คำสั่งให้ AI ดูข้อมูลในไฟล์", kind: "qr", qr, promptText: STEPB2_1, detail: "สแกน QR ทางขวาเพื่อเปิดแชตพร้อมข้อความนี้บนมือถือ" }); }
+  { const d = await liveProofDim("bonus2_attach_confirmed.png");
+    liveProofSlide({ accent: HB2.accent, label: HB2.label, image: d.file, _imgDim: d, title: "ภาพหน้าจอจริง — ไฟล์แนบสำเร็จ เห็นการ์ดไฟล์ในกล่องแชตก่อนส่งคำสั่ง" }); }
+  { const d = await liveProofDim("bonus2_step1_fileread.png");
+    liveProofSlide({ accent: HB2.accent, label: HB2.label, image: d.file, _imgDim: d, title: "ภาพหน้าจอจริง — ทดสอบสดบน ChatGPT (AI อ่านข้อมูลจากไฟล์จริง)" }); }
   { const qr = await qrPng(STEPB2_2);
     actionStepSlide({ accent: HB2.accent, label: HB2.label, stepNum: 4, stepTotal: total, headline: "ขั้นที่ 2 — พิมพ์คำสั่งหาตลาดที่มีโอกาส", kind: "qr", qr, promptText: STEPB2_2, detail: "พิมพ์ต่อในแชตเดิม ไม่ต้องเปิดแชตใหม่" }); }
   { const qr = await qrPng(STEPB2_3);
@@ -881,6 +899,12 @@ const HB3 = {
 async function buildBonus3() {
   let page = 0;
   howToOpenSlide(HB3); page++;
+  { const d = await liveProofDim("bonus3_ai_answer.png");
+    liveProofSlide({ accent: HB3.accent, label: HB3.label, image: d.file, _imgDim: d,
+      title: "ภาพหน้าจอจริง — ทดสอบสดบน ChatGPT (AI แนะนำค่าฟิลด์ใบเสนอราคาขนส่งจากไฟล์จริง)" }); } page++;
+  { const d = await liveProofDim("bonus3_ai_answer2.png");
+    liveProofSlide({ accent: HB3.accent, label: HB3.label, image: d.file, _imgDim: d,
+      title: "ภาพหน้าจอจริง — ทดสอบสดบน ChatGPT (ต่อ — น้ำหนัก/ปริมาตร/ตู้คอนเทนเนอร์ที่แนะนำ)" }); } page++;
   { const d = await liveProofDim("bonus3_form_cargo.png");
     liveProofSlide({ accent: HB3.accent, label: HB3.label, image: d.file, _imgDim: d,
       title: "ภาพหน้าจอจริง — กรอกฟอร์ม SeaRates ด้วยค่าที่ AI แนะนำ (สินค้า/เส้นทาง/น้ำหนัก/ตู้คอนเทนเนอร์)",
